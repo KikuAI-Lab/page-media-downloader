@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Медиа со страницы</title>
+    <link rel="icon" type="image/png" href="icons/icon16.png" />
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <div class="brand-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" focusable="false">
+          <path d="M12 3v11m0 0 4-4m-4 4-4-4M5 17v3h14v-3" />
+        </svg>
+      </div>
+      <div class="app-title">
+        <h1>Медиа со страницы</h1>
+        <p id="pageSource">Текущая вкладка</p>
+      </div>
+      <button
+        type="button"
+        id="btnScan"
+        class="icon-button"
+        aria-label="Повторить поиск"
+        title="Повторить поиск"
+        hidden
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7" />
+        </svg>
+      </button>
+    </header>
+
+    <section id="status" class="status is-loading" role="status" aria-live="polite" aria-atomic="true">
+      <span id="statusActivity" class="status-activity" aria-hidden="true"></span>
+      <span class="status-copy">
+        <strong id="statusTitle">Ищу медиа…</strong>
+        <span id="statusDetail">Проверяю текущую страницу</span>
+      </span>
+    </section>
+
+    <button type="button" id="btnStop" class="danger-action job-stop" hidden>Остановить загрузку</button>
+
+    <main>
+      <section id="results" class="results" aria-labelledby="resultsTitle" hidden>
+        <div class="results-head">
+          <div>
+            <h2 id="resultsTitle">Найдено</h2>
+            <p id="summaryText">0 видео · 0 фото</p>
+          </div>
+          <button type="button" id="btnSelectAll" class="text-button">Снять всё</button>
+        </div>
+
+        <section id="videoSection" class="media-section video-section" aria-labelledby="videoTitle" hidden>
+          <div class="section-head">
+            <h3 id="videoTitle">Видео</h3>
+            <span id="videoCount" class="count-badge">0</span>
+          </div>
+          <div id="videoList" class="video-list"></div>
+        </section>
+
+        <section id="photoSection" class="media-section" aria-labelledby="photoTitle" hidden>
+          <div class="section-head">
+            <h3 id="photoTitle">Фото</h3>
+            <span id="photoCount" class="count-badge">0</span>
+          </div>
+          <div id="photoGrid" class="photo-grid"></div>
+        </section>
+
+        <button type="button" id="btnDownload" class="primary-action" disabled>
+          Скачать выбранное · 0
+        </button>
+      </section>
+
+      <details id="advanced" class="disclosure" hidden>
+        <summary>Больше медиа со страницы</summary>
+        <div class="disclosure-body">
+          <section class="advanced-option">
+            <h2>Догрузить результаты</h2>
+            <p>Немного прокрутит страницу и обновит список. Ничего не скачивает.</p>
+            <button type="button" id="btnScanMore" class="secondary-action">Найти больше</button>
+          </section>
+
+          <section class="advanced-option">
+            <h2>Скачать всю страницу</h2>
+            <p>Прокрутит страницу и сразу отправит найденные файлы в Downloads без предварительного выбора.</p>
+            <button type="button" id="btnCrawl" class="secondary-action">Запустить автоскролл</button>
+          </section>
+        </div>
+      </details>
+
+      <details class="disclosure help">
+        <summary>Что можно скачать</summary>
+        <p>
+          Фото и обычные видео, которые страница уже открыла. Защищённые и потоковые видео расширение не обходит.
+          Для Instagram Reel лучше открыть сам пост.
+        </p>
+      </details>
+    </main>
+
+    <script src="popup.js"></script>
+  </body>
+</html>

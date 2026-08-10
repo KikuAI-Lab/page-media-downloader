@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Download media">
+  <rect x="4" y="4" width="120" height="120" rx="30" fill="#2563eb" />
+  <path
+    d="M64 25v53M43 59l21 21 21-21M31 94v10h66V94"
+    fill="none"
+    stroke="#ffffff"
+    stroke-width="11"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+</svg>
