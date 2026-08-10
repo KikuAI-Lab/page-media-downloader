@@ -10,6 +10,9 @@ const summaryTextEl = $("summaryText");
 const videoSectionEl = $("videoSection");
 const videoListEl = $("videoList");
 const videoCountEl = $("videoCount");
+const audioSectionEl = $("audioSection");
+const audioListEl = $("audioList");
+const audioCountEl = $("audioCount");
 const photoSectionEl = $("photoSection");
 const photoGridEl = $("photoGrid");
 const photoCountEl = $("photoCount");
@@ -79,10 +82,12 @@ async function ensureContentScript(tabId) {
   }
 }
 
-function putVideosFirst(items) {
+function orderMediaItems(items) {
   return [
     ...items.filter((item) => item.type === "video"),
-    ...items.filter((item) => item.type !== "video"),
+    ...items.filter((item) => item.type === "audio" && item.playing === true),
+    ...items.filter((item) => item.type === "audio" && item.playing !== true),
+    ...items.filter((item) => item.type === "photo"),
   ];
 }
 
@@ -91,17 +96,21 @@ function normaliseCollectedItems(data) {
   if (Array.isArray(data?.items) && data.items.length) {
     items = data.items
       .filter((item) => item && typeof item.url === "string")
-      .map((item) => ({ ...item, type: item.type === "video" ? "video" : "photo" }));
+      .map((item) => ({
+        ...item,
+        type: ["video", "audio", "photo"].includes(item.type) ? item.type : "photo",
+      }));
   } else {
     items = (data?.urls || []).filter(Boolean).map((url) => ({ url, type: "photo" }));
   }
-  return putVideosFirst(items);
+  return orderMediaItems(items);
 }
 
 function splitMediaItems(items) {
   return {
     videos: items.filter((item) => item.type === "video"),
-    photos: items.filter((item) => item.type !== "video"),
+    audios: items.filter((item) => item.type === "audio"),
+    photos: items.filter((item) => item.type === "photo"),
   };
 }
 
@@ -110,8 +119,8 @@ function selectionButtonLabel(count) {
 }
 
 function resultSummaryText(items) {
-  const { videos, photos } = splitMediaItems(items);
-  return `${videos.length} видео · ${photos.length} фото`;
+  const { videos, audios, photos } = splitMediaItems(items);
+  return `${videos.length} видео · ${audios.length} аудио · ${photos.length} фото`;
 }
 
 function setPageSource(value) {
@@ -222,6 +231,41 @@ function createVideoOption(item, itemIndex, position) {
   return option;
 }
 
+function createAudioOption(item, itemIndex, position) {
+  const option = document.createElement("label");
+  option.className = `media-option audio-option${item.playing ? " is-playing" : ""}`;
+
+  const thumb = document.createElement("span");
+  thumb.className = "audio-thumb";
+  thumb.setAttribute("aria-hidden", "true");
+  thumb.textContent = "♪";
+
+  const copy = document.createElement("span");
+  copy.className = "audio-copy";
+  const heading = document.createElement("span");
+  heading.className = "audio-heading";
+  const title = document.createElement("strong");
+  title.textContent = `Аудио ${position}`;
+  heading.appendChild(title);
+  if (item.playing) {
+    const badge = document.createElement("span");
+    badge.className = "playing-badge";
+    badge.textContent = "Сейчас играет";
+    heading.appendChild(badge);
+  }
+  const source = document.createElement("span");
+  source.className = "audio-source";
+  source.textContent = itemSourceLabel(item.url);
+  copy.append(heading, source);
+
+  option.append(
+    thumb,
+    copy,
+    createMediaCheckbox(itemIndex, `Выбрать аудио ${position}`)
+  );
+  return option;
+}
+
 function createPhotoOption(item, itemIndex, position) {
   const option = document.createElement("label");
   option.className = "media-option photo-option";
@@ -242,22 +286,29 @@ function createPhotoOption(item, itemIndex, position) {
 
 function renderResults(items) {
   videoListEl.replaceChildren();
+  audioListEl.replaceChildren();
   photoGridEl.replaceChildren();
 
   const indexedItems = items.map((item, index) => ({ item, index }));
   const videoEntries = indexedItems.filter(({ item }) => item.type === "video");
-  const photoEntries = indexedItems.filter(({ item }) => item.type !== "video");
+  const audioEntries = indexedItems.filter(({ item }) => item.type === "audio");
+  const photoEntries = indexedItems.filter(({ item }) => item.type === "photo");
 
   videoEntries.forEach(({ item, index }, position) => {
     videoListEl.appendChild(createVideoOption(item, index, position + 1));
+  });
+  audioEntries.forEach(({ item, index }, position) => {
+    audioListEl.appendChild(createAudioOption(item, index, position + 1));
   });
   photoEntries.forEach(({ item, index }, position) => {
     photoGridEl.appendChild(createPhotoOption(item, index, position + 1));
   });
 
   videoCountEl.textContent = String(videoEntries.length);
+  audioCountEl.textContent = String(audioEntries.length);
   photoCountEl.textContent = String(photoEntries.length);
   videoSectionEl.hidden = videoEntries.length === 0;
+  audioSectionEl.hidden = audioEntries.length === 0;
   photoSectionEl.hidden = photoEntries.length === 0;
   resultsEl.hidden = items.length === 0;
   document.body.classList.toggle("has-results", items.length > 0);
@@ -322,9 +373,17 @@ async function scan({ deep = false } = {}) {
       return;
     }
 
-    const { videos, photos } = splitMediaItems(items);
+    const { videos, audios } = splitMediaItems(items);
+    const readyTitle =
+      videos.length > 0 && audios.length > 0
+        ? "Видео и аудио найдены"
+        : videos.length > 0
+          ? "Видео найдено"
+          : audios.length > 0
+            ? "Аудио найдено"
+            : "Медиа готово к выбору";
     setStatus(
-      videos.length > 0 ? "Видео найдено" : "Медиа готово к выбору",
+      readyTitle,
       "",
       "ok"
     );

@@ -1,4 +1,4 @@
-# Chrome Web Store submission pack — 1.5.0
+# Chrome Web Store submission pack — 1.6.0
 
 This is the single live owner handoff for the first public Chrome release. Update it whenever the manifest, privacy behavior, listing claims, URLs, or store questionnaire changes.
 
@@ -21,23 +21,24 @@ Page Media Downloader
 
 ### Short description
 
-Находит фото и прямые видео на текущей странице и скачивает только выбранные файлы — локально, без аккаунта и аналитики.
+Находит фото, прямые видео и аудио на текущей странице и скачивает выбранные файлы — локально, без аккаунта и аналитики.
 
 ### Detailed description
 
-Page Media Downloader помогает сохранить фотографии и прямые видеофайлы, которые уже доступны открытой веб-странице.
+Page Media Downloader помогает сохранить фотографии, прямые видеофайлы и прямые аудиофайлы, которые уже доступны открытой веб-странице.
 
 Как это работает:
 
 - открой обычную HTTP(S)-страницу и нажми иконку расширения;
-- видео, если они обнаружены, появятся заметным блоком вверху;
-- выбери нужные фото и видео и запусти загрузку;
+- результаты появляются в порядке «Видео → Аудио → Фото»;
+- воспроизводимое аудио помечается «Сейчас играет» и показывается первым среди аудио;
+- выбери нужные фото, видео и аудио и запусти загрузку;
 - если страница ещё не догрузила медиа, используй дополнительный поиск;
 - для Instagram открой конкретный пост или Reel, а не только сетку профиля.
 
 Расширение работает локально, без аккаунта, сервера разработчика, аналитики, рекламы и телеметрии. Постоянный доступ ко всем сайтам не запрашивается: временный доступ к текущей вкладке появляется только после действия пользователя.
 
-Честные ограничения: расширение не реконструирует HLS/DASH-потоки, не обходит DRM, paywall, авторизацию, приватные API или ограничения доступа и не поддерживает YouTube. `blob:` можно скачать только если сама страница дополнительно раскрывает прямой незашифрованный URL.
+Честные ограничения: расширение не записывает вкладку, не реконструирует HLS/DASH-потоки, не обходит DRM, paywall, авторизацию, приватные API или ограничения доступа и не поддерживает YouTube. `blob:` можно скачать только если сама страница дополнительно раскрывает прямой незашифрованный URL.
 
 Page Media Downloader не связан с Instagram, Meta или владельцами поддерживаемых сайтов; упоминание сервиса описывает только совместимость.
 
@@ -56,7 +57,7 @@ Do not add Telegram, unrelated products, affiliate links, donations, or paid-upg
 
 ## Single purpose
 
-Find photos and direct video files already exposed by the user-invoked current web page, let the user choose among them, and download the selected files through the browser's download manager.
+Find photos, direct video files, and direct audio files already exposed by the user-invoked current web page, let the user choose among them, and download the selected files through the browser's download manager.
 
 ## Permission justifications
 
@@ -97,9 +98,9 @@ Certify these answers only after comparing the uploaded ZIP to this exact commit
 
 No account, login, paid feature, or special test credential is required.
 
-1. Open a normal public HTTP(S) page containing an `img` element and a native `video` or `source` with a direct HTTP(S) media URL.
+1. Open a normal public HTTP(S) page containing an `img`, a native `video`, and a native `audio` or `source`, each with a direct HTTP(S) media URL.
 2. Click the extension icon. It automatically scans only the active page.
-3. Confirm that any detected video appears in the **Видео** section above **Фото**.
+3. Confirm that results appear as **Видео**, **Аудио**, then **Фото**, and that a playing native audio element is marked **Сейчас играет**.
 4. Deselect an item and press **Скачать выбранное · N**. Chrome should start downloads only for selected items.
 5. Expand **Больше медиа со страницы** and press **Найти больше** to verify that the page scrolls briefly and refreshes results without downloading.
 6. The separate full-page action is intentionally explicit because it scrolls and begins downloading discovered items.
@@ -118,7 +119,7 @@ If testing Instagram, open a public post or Reel itself. Detection depends on th
 - [ ] Review `PRIVACY.md`, publisher identity, rights statement, regions, and any trader/legal status personally.
 - [ ] Make the GitHub repository public and verify Homepage, Support, and Privacy URLs while signed out.
 - [ ] Rebuild from the final public commit and match the ZIP SHA-256 to the verification receipt.
-- [ ] Upload `dist/page-media-downloader-1.5.0-chrome.zip` and the mapped image assets.
+- [ ] Upload `dist/page-media-downloader-1.6.0-chrome.zip` and the mapped image assets.
 - [ ] Copy the listing, single-purpose, permission, remote-code, and data-use answers above into the current dashboard.
 - [ ] Confirm there is no unexpected registration fee or account warning; do not pay or change provider settings automatically.
 - [ ] Save as draft and inspect the complete dashboard readback.

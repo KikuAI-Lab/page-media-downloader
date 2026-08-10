@@ -27,8 +27,17 @@ function mediaTypeFromUrl(url) {
     ) {
       return "video";
     }
+    if (
+      /\.(mp3|m4a|aac|wav|ogg|oga|flac|opus)$/i.test(parsed.pathname) ||
+      /(?:^|[?&])(?:mime_type|type)=audio(?:%2F|\/)/i.test(parsed.search)
+    ) {
+      return "audio";
+    }
   } catch {
     if (/\.(mp4|webm|mov|m4v)(?:[?#]|$)/i.test(String(url || ""))) return "video";
+    if (/\.(mp3|m4a|aac|wav|ogg|oga|flac|opus)(?:[?#]|$)/i.test(String(url || ""))) {
+      return "audio";
+    }
   }
   return "photo";
 }
@@ -49,17 +58,26 @@ function normalizeMediaItem(value) {
   const raw = typeof value === "string" ? { url: value } : value;
   if (!raw || typeof raw.url !== "string" || !/^https?:\/\//i.test(raw.url)) return null;
   const inferred = mediaTypeFromUrl(raw.url);
-  const type = raw.type === "video" || inferred === "video" ? "video" : "photo";
+  const declared = ["video", "audio", "photo"].includes(raw.type) ? raw.type : "photo";
+  const type = inferred === "video" || inferred === "audio" ? inferred : declared;
   return {
     url: raw.url,
     type,
     key: raw.key || mediaKey(raw.url, type),
     ...(typeof raw.poster === "string" && raw.poster ? { poster: raw.poster } : {}),
+    ...(raw.playing === true ? { playing: true } : {}),
   };
 }
 
 function extFromContentType(ct, url, typeHint = mediaTypeFromUrl(url)) {
   const t = (ct || "").toLowerCase();
+  if (t.includes("audio/mpeg")) return "mp3";
+  if (t.includes("audio/mp4") || t.includes("audio/x-m4a")) return "m4a";
+  if (t.includes("audio/aac")) return "aac";
+  if (t.includes("audio/wav") || t.includes("audio/x-wav")) return "wav";
+  if (t.includes("audio/ogg")) return "ogg";
+  if (t.includes("audio/flac")) return "flac";
+  if (t.includes("audio/opus")) return "opus";
   if (t.includes("video/mp4")) return "mp4";
   if (t.includes("video/webm")) return "webm";
   if (t.includes("quicktime")) return "mov";
@@ -81,10 +99,19 @@ function extFromContentType(ct, url, typeHint = mediaTypeFromUrl(url)) {
     if (path.endsWith(".webm")) return "webm";
     if (path.endsWith(".mov")) return "mov";
     if (path.endsWith(".m4v")) return "m4v";
+    if (path.endsWith(".mp3")) return "mp3";
+    if (path.endsWith(".m4a")) return "m4a";
+    if (path.endsWith(".aac")) return "aac";
+    if (path.endsWith(".wav")) return "wav";
+    if (path.endsWith(".ogg") || path.endsWith(".oga")) return "ogg";
+    if (path.endsWith(".flac")) return "flac";
+    if (path.endsWith(".opus")) return "opus";
   } catch {
     /* ignore */
   }
-  return typeHint === "video" ? "mp4" : "jpg";
+  if (typeHint === "video") return "mp4";
+  if (typeHint === "audio") return "mp3";
+  return "jpg";
 }
 
 function broadcastProgress() {
@@ -344,7 +371,7 @@ async function runCrawlJob(tabId, folder, options = {}) {
   const downloadedKeys = new Set();
   /** @type {Set<string>} keys we already tried (success or fail) — no re-queue */
   const processedKeys = new Set();
-  /** @type {Map<string,{url:string,key:string,type:"photo"|"video"}>} key → best item seen */
+  /** @type {Map<string,{url:string,key:string,type:"photo"|"video"|"audio"}>} key → best item seen */
   const seenMedia = new Map();
 
   let fileIndex = 0;

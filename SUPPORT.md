@@ -1,6 +1,6 @@
 # Support — Page Media Downloader
 
-Page Media Downloader is a small, free browser utility. It finds photos and direct video files already exposed by the current HTTP(S) page. It does not bypass access restrictions or guarantee support for every website.
+Page Media Downloader is a small, free browser utility. It finds photos, direct video files, and direct audio files already exposed by the current HTTP(S) page. It does not bypass access restrictions or guarantee support for every website.
 
 ## Before reporting a problem
 
@@ -15,7 +15,7 @@ Use <https://github.com/KikuAI-Lab/page-media-downloader/issues> and include:
 
 - browser name and version;
 - extension version;
-- whether the missing item is a photo or video;
+- whether the missing item is a photo, video, or audio file;
 - the visible status or error text;
 - minimal reproduction steps on a public page, when possible.
 
@@ -27,7 +27,7 @@ This project does not provide help with copyright infringement, DRM circumventio
 
 # Поддержка — Page Media Downloader
 
-Page Media Downloader — небольшое бесплатное расширение. Оно находит фотографии и прямые видеофайлы, уже раскрытые текущей HTTP(S)-страницей. Оно не обходит ограничения доступа и не гарантирует работу на каждом сайте.
+Page Media Downloader — небольшое бесплатное расширение. Оно находит фотографии, прямые видеофайлы и прямые аудиофайлы, уже раскрытые текущей HTTP(S)-страницей. Оно не обходит ограничения доступа и не гарантирует работу на каждом сайте.
 
 ## Перед сообщением о проблеме
 
@@ -42,7 +42,7 @@ Page Media Downloader — небольшое бесплатное расшире
 
 - браузер и его версию;
 - версию расширения;
-- пропущено фото или видео;
+- пропущено фото, видео или аудио;
 - видимый статус или текст ошибки;
 - минимальные шаги воспроизведения на публичной странице, если это возможно.
 

@@ -10,7 +10,7 @@ People using Chrome or Brave who want to save media already exposed by the page 
 
 ## Product Purpose
 
-Find photos and direct videos on the current page, make videos especially easy to spot, and download only the items the user chooses. Success means the user can open the popup, recognize what was found, and start the correct download without interpreting technical controls.
+Find photos, direct videos, and direct audio on the current page, make video and currently playing audio especially easy to spot, and download only the items the user chooses. Success means the user can open the popup, recognize what was found, and start the correct download without interpreting technical controls.
 
 ## Brand Personality
 
@@ -27,7 +27,8 @@ Direct, calm, trustworthy. The interface should feel like a small native browser
 
 - Lead with the media and the next safe action.
 - Separate discovery from downloading.
-- Make video unmistakable and place it before photos.
+- Keep the result order stable: video, audio, photo.
+- Mark currently playing audio in plain language and place it first within the audio group.
 - Hide uncommon full-page behavior until the user asks for it.
 - Explain limitations in plain language without making them the main interface.
 

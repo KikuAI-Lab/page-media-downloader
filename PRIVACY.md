@@ -2,7 +2,7 @@
 
 Effective date: August 10, 2026
 
-Page Media Downloader is a browser extension that finds photos and direct video files already exposed by the web page the user is viewing and lets the user download selected files.
+Page Media Downloader is a browser extension that finds photos, direct video files, and direct audio files already exposed by the web page the user is viewing and lets the user download selected files.
 
 ## What the extension processes
 
@@ -50,7 +50,7 @@ Material changes to this policy will be documented in this repository and reflec
 
 Дата вступления в силу: 10 августа 2026 года
 
-Page Media Downloader — браузерное расширение, которое находит фотографии и прямые видеофайлы, уже раскрытые открытой пользователем веб-страницей, и позволяет скачать выбранные файлы.
+Page Media Downloader — браузерное расширение, которое находит фотографии, прямые видеофайлы и прямые аудиофайлы, уже раскрытые открытой пользователем веб-страницей, и позволяет скачать выбранные файлы.
 
 ## Что обрабатывает расширение
 

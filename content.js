@@ -1,5 +1,5 @@
 /**
- * Collects direct image and video URLs exposed by the user-invoked current page.
+ * Collects direct image, video, and audio URLs exposed by the user-invoked current page.
  * Instagram keeps a host-specific embedded-data fallback for blob-backed players.
  */
 
@@ -71,16 +71,32 @@
     }
   }
 
+  function isLikelyAudioUrl(url) {
+    const normalized = normalizeUrl(url);
+    if (!normalized) return false;
+    try {
+      const parsed = new URL(normalized);
+      return (
+        /\.(mp3|m4a|aac|wav|ogg|oga|flac|opus)$/i.test(parsed.pathname) ||
+        /(?:^|[?&])mime_type=audio(?:%2F|\/)/i.test(parsed.search) ||
+        /(?:^|[?&])type=audio(?:%2F|\/)/i.test(parsed.search)
+      );
+    } catch {
+      return /\.(mp3|m4a|aac|wav|ogg|oga|flac|opus)(?:[?#]|$)/i.test(normalized);
+    }
+  }
+
   function isLikelyPhotoUrl(url) {
-    return isDirectMediaUrl(url) && !isLikelyVideoUrl(url);
+    return isDirectMediaUrl(url) && !isLikelyVideoUrl(url) && !isLikelyAudioUrl(url);
   }
 
   function directMediaType(url) {
     const normalized = normalizeUrl(url);
     if (!normalized || !isDirectMediaUrl(normalized)) return null;
+    if (isLikelyVideoUrl(normalized)) return "video";
+    if (isLikelyAudioUrl(normalized)) return "audio";
     try {
       const pathname = new URL(normalized).pathname;
-      if (/\.(mp4|webm|mov|m4v)$/i.test(pathname)) return "video";
       if (/\.(jpe?g|png|webp|gif|avif|bmp)$/i.test(pathname)) return "photo";
     } catch {
       /* ignore */
@@ -135,17 +151,19 @@
   function addMedia(bucket, url, type = "photo", extra = {}) {
     const n = normalizeUrl(url);
     if (!n || !isDirectMediaUrl(n)) return;
-    if (type === "photo" && isLikelyVideoUrl(n)) return;
+    if (type === "photo" && (isLikelyVideoUrl(n) || isLikelyAudioUrl(n))) return;
+    if (type === "video" && isLikelyAudioUrl(n)) return;
+    if (type === "audio" && isLikelyVideoUrl(n)) return;
     const key = mediaKey(n, type);
     const prev = bucket.get(key);
-    if (!prev || scoreUrl(n) > scoreUrl(prev.url)) {
-      bucket.set(key, {
-        url: n,
-        key,
-        type,
-        ...(extra.poster || prev?.poster ? { poster: extra.poster || prev.poster } : {}),
-      });
-    }
+    const bestUrl = !prev || scoreUrl(n) > scoreUrl(prev.url) ? n : prev.url;
+    bucket.set(key, {
+      url: bestUrl,
+      key,
+      type,
+      ...(extra.poster || prev?.poster ? { poster: extra.poster || prev.poster } : {}),
+      ...(extra.playing || prev?.playing ? { playing: true } : {}),
+    });
   }
 
   function collectFromImg(img, bucket) {
@@ -173,6 +191,19 @@
     add(video.getAttribute("data-src"));
     add(video.getAttribute("data-video-url"));
     video.querySelectorAll("source").forEach((source) => {
+      add(source.src);
+      add(source.getAttribute("src"));
+    });
+  }
+
+  function collectFromAudio(audio, bucket) {
+    const playing = audio.paused === false && audio.ended !== true;
+    const add = (url) => addMedia(bucket, url, "audio", { playing });
+    add(audio.currentSrc);
+    add(audio.src);
+    add(audio.getAttribute("src"));
+    add(audio.getAttribute("data-src"));
+    audio.querySelectorAll("source").forEach((source) => {
       add(source.src);
       add(source.getAttribute("src"));
     });
@@ -253,11 +284,13 @@
     const declaredTypes = Array.isArray(value["@type"])
       ? value["@type"].join(" ")
       : String(value["@type"] || "");
-    const objectType = /videoobject|video/i.test(declaredTypes)
-      ? "video"
-      : /imageobject|photograph|image/i.test(declaredTypes)
-        ? "photo"
-        : null;
+    const objectType = /audioobject|musicrecording|podcastepisode|audiobook/i.test(declaredTypes)
+      ? "audio"
+      : /videoobject|video/i.test(declaredTypes)
+        ? "video"
+        : /imageobject|photograph|image/i.test(declaredTypes)
+          ? "photo"
+          : null;
 
     if (objectType) {
       for (const key of ["contentUrl", "content_url", "url"]) {
@@ -272,6 +305,9 @@
     }
     if (typeof value.video === "string" || Array.isArray(value.video)) {
       addStructuredValue(bucket, value.video, "video");
+    }
+    if ("audio" in value) {
+      addStructuredValue(bucket, value.audio, "audio");
     }
 
     for (const item of Object.values(value)) {
@@ -315,7 +351,7 @@
     for (let i = 0; i < limit; i += 1) {
       const element = elements[i];
       const tag = String(element.tagName || "").toLowerCase();
-      if (["img", "video", "source", "script", "style", "meta", "link"].includes(tag)) {
+      if (["img", "video", "audio", "source", "script", "style", "meta", "link"].includes(tag)) {
         continue;
       }
       collectFromBackground(element, bucket);
@@ -336,20 +372,34 @@
       'meta[property="og:video"]',
       'meta[property="og:video:url"]',
       'meta[property="og:video:secure_url"]',
-      'meta[name="twitter:player:stream"]',
       'link[rel="preload"][as="video"]',
     ]) {
       document.querySelectorAll(selector).forEach((el) => {
         addMedia(bucket, el.getAttribute("content") || el.getAttribute("href"), "video");
       });
     }
+    for (const selector of [
+      'meta[property="og:audio"]',
+      'meta[property="og:audio:url"]',
+      'meta[property="og:audio:secure_url"]',
+      'link[rel="preload"][as="audio"]',
+    ]) {
+      document.querySelectorAll(selector).forEach((el) => {
+        addMedia(bucket, el.getAttribute("content") || el.getAttribute("href"), "audio");
+      });
+    }
+    document.querySelectorAll('meta[name="twitter:player:stream"]').forEach((el) => {
+      const url = el.getAttribute("content");
+      addMedia(bucket, url, directMediaType(url) === "audio" ? "audio" : "video");
+    });
   }
 
   function collectAll() {
-    /** @type {Map<string, {url:string,key:string,type:"photo"|"video",poster?:string}>} */
+    /** @type {Map<string, {url:string,key:string,type:"photo"|"video"|"audio",poster?:string,playing?:boolean}>} */
     const bucket = new Map();
     document.querySelectorAll("img").forEach((img) => collectFromImg(img, bucket));
     document.querySelectorAll("video").forEach((video) => collectFromVideo(video, bucket));
+    document.querySelectorAll("audio").forEach((audio) => collectFromAudio(audio, bucket));
     collectDirectLinks(bucket);
     collectBackgrounds(bucket);
     collectMeta(bucket);
@@ -361,6 +411,7 @@
       urls: items.map((i) => i.url),
       photoCount: items.filter((i) => i.type === "photo").length,
       videoCount: items.filter((i) => i.type === "video").length,
+      audioCount: items.filter((i) => i.type === "audio").length,
       pageType: detectPageType(),
       sourceName: extractSourceName(),
       username: extractSourceName(),

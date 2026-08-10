@@ -47,6 +47,19 @@ function video({ currentSrc = "", src = "", poster = "", sources = [] } = {}) {
   };
 }
 
+function audio({ currentSrc = "", src = "", sources = [], paused = true, ended = false } = {}) {
+  return {
+    ...attrElement({ src, "data-src": "" }),
+    currentSrc,
+    src,
+    paused,
+    ended,
+    querySelectorAll(selector) {
+      return selector === "source" ? sources : [];
+    },
+  };
+}
+
 function source(src, type = "") {
   return {
     ...attrElement({ src, type }),
@@ -83,6 +96,7 @@ function collectFromFixture({
   url = "https://www.instagram.com/nasa/reel/test/",
   images = [],
   videos = [],
+  audios = [],
   links = [],
   backgrounds = [],
   scripts = [],
@@ -111,6 +125,7 @@ function collectFromFixture({
     querySelectorAll(selector) {
       if (selector === "img") return images;
       if (selector === "video") return videos;
+      if (selector === "audio") return audios;
       if (selector === "a[href]") return links;
       if (selector === "body, body *") return backgrounds;
       if (selector === "div") return [];
@@ -180,7 +195,7 @@ function collectFromFixture({
 
 function loadPopupModel() {
   const source = fs.readFileSync(path.join(root, "popup.js"), "utf8");
-  const start = source.indexOf("function putVideosFirst");
+  const start = source.indexOf("function orderMediaItems");
   const end = source.indexOf("\nfunction setPageSource", start);
   assert.ok(start >= 0 && end > start, "popup media model should remain testable");
 
@@ -336,6 +351,46 @@ async function main() {
       check: (data) => assert.equal(data.videoCount, 0),
     },
     {
+      name: "playing extensionless audio element",
+      fixture: {
+        url: genericPage,
+        audios: [audio({ currentSrc: "https://media.example.test/listen?id=42", paused: false })],
+      },
+      check: (data) => {
+        assert.equal(data.audioCount, 1);
+        assert.equal(data.items[0].type, "audio");
+        assert.equal(data.items[0].playing, true);
+      },
+    },
+    {
+      name: "paused relative audio source",
+      fixture: { url: genericPage, audios: [audio({ sources: [source("/media/track.m4a")] })] },
+      check: (data) => {
+        assert.equal(data.audioCount, 1);
+        assert.equal(data.items[0].url, "https://example.test/media/track.m4a");
+        assert.equal(data.items[0].playing, undefined);
+      },
+    },
+    {
+      name: "playing state survives audio deduplication",
+      fixture: {
+        url: genericPage,
+        audios: [
+          audio({ currentSrc: "https://media.example.test/track.mp3" }),
+          audio({ currentSrc: "https://media.example.test/track.mp3", paused: false }),
+        ],
+      },
+      check: (data) => {
+        assert.equal(data.audioCount, 1);
+        assert.equal(data.items[0].playing, true);
+      },
+    },
+    {
+      name: "blob audio excluded",
+      fixture: { url: genericPage, audios: [audio({ currentSrc: "blob:https://example.test/audio" })] },
+      check: (data) => assert.equal(data.audioCount, 0),
+    },
+    {
       name: "absolute CSS background",
       fixture: {
         url: genericPage,
@@ -389,6 +444,18 @@ async function main() {
       check: (data) => assert.equal(data.videoCount, 1),
     },
     {
+      name: "Open Graph extensionless audio",
+      fixture: {
+        url: genericPage,
+        selectors: {
+          'meta[property="og:audio"]': [
+            attrElement({ content: "https://media.example.test/listen?id=7" }),
+          ],
+        },
+      },
+      check: (data) => assert.equal(data.audioCount, 1),
+    },
+    {
       name: "direct image link",
       fixture: { url: genericPage, links: [link("/downloads/original.jpeg")] },
       check: (data) => assert.equal(data.photoCount, 1),
@@ -397,6 +464,24 @@ async function main() {
       name: "direct video link",
       fixture: { url: genericPage, links: [link("/downloads/original.mp4?token=1")] },
       check: (data) => assert.equal(data.videoCount, 1),
+    },
+    {
+      name: "direct audio link",
+      fixture: { url: genericPage, links: [link("/downloads/original.mp3?token=1")] },
+      check: (data) => assert.equal(data.audioCount, 1),
+    },
+    {
+      name: "direct audio MIME query link",
+      fixture: {
+        url: genericPage,
+        links: [link("https://media.example.test/download?id=9&type=audio%2Fmpeg")],
+      },
+      check: (data) => assert.equal(data.audioCount, 1),
+    },
+    {
+      name: "HLS audio link ignored",
+      fixture: { url: genericPage, links: [link("/streams/audio.m3u8")] },
+      check: (data) => assert.equal(data.audioCount, 0),
     },
     {
       name: "JSON-LD VideoObject",
@@ -423,6 +508,35 @@ async function main() {
         ],
       },
       check: (data) => assert.equal(data.photoCount, 1),
+    },
+    {
+      name: "JSON-LD AudioObject",
+      fixture: {
+        url: genericPage,
+        scripts: [
+          jsonScript("application/ld+json", {
+            "@type": "AudioObject",
+            contentUrl: "/structured/episode.ogg",
+          }),
+        ],
+      },
+      check: (data) => assert.equal(data.audioCount, 1),
+    },
+    {
+      name: "JSON-LD MusicRecording audio object",
+      fixture: {
+        url: genericPage,
+        scripts: [
+          jsonScript("application/ld+json", {
+            "@type": "MusicRecording",
+            audio: { contentUrl: "/structured/song.flac" },
+          }),
+        ],
+      },
+      check: (data) => {
+        assert.equal(data.audioCount, 1);
+        assert.equal(data.items[0].url, "https://example.test/structured/song.flac");
+      },
     },
     {
       name: "generic application/json ignored",
@@ -541,15 +655,17 @@ async function main() {
   const popupItems = popupModel.normaliseCollectedItems({
     items: [
       { url: "photo-1", type: "photo" },
+      { url: "audio-paused", type: "audio" },
       { url: "video-1", type: "video" },
+      { url: "audio-playing", type: "audio", playing: true },
       { url: "photo-2", type: "photo" },
       { url: "video-2", type: "video" },
     ],
   });
   assert.deepEqual(
     Array.from(popupItems, (item) => item.url),
-    ["video-1", "video-2", "photo-1", "photo-2"],
-    "videos should render before photos while preserving order within each group"
+    ["video-1", "video-2", "audio-playing", "audio-paused", "photo-1", "photo-2"],
+    "results should render as video, audio, photo with playing audio first"
   );
   assert.deepEqual(
     Array.from(popupModel.normaliseCollectedItems({ urls: ["legacy-photo"] }), (item) => item.type),
@@ -563,13 +679,18 @@ async function main() {
     "videos have their own deterministic result group"
   );
   assert.deepEqual(
+    Array.from(popupGroups.audios, (item) => item.url),
+    ["audio-playing", "audio-paused"],
+    "audio has its own deterministic group below video"
+  );
+  assert.deepEqual(
     Array.from(popupGroups.photos, (item) => item.url),
     ["photo-1", "photo-2"],
     "photos remain in a separate group below videos"
   );
   assert.equal(popupModel.selectionButtonLabel(0), "Скачать выбранное · 0");
   assert.equal(popupModel.selectionButtonLabel(3), "Скачать выбранное · 3");
-  assert.equal(popupModel.resultSummaryText(popupItems), "2 видео · 2 фото");
+  assert.equal(popupModel.resultSummaryText(popupItems), "2 видео · 2 аудио · 2 фото");
 
   const popupPolicy = loadPopupPagePolicy();
   assert.equal(popupPolicy.isSupportedPageUrl("https://example.test/page"), true);
@@ -590,9 +711,24 @@ async function main() {
   assert.equal(background.extFromContentType("video/mp4", "https://cdn/x", "video"), "mp4");
   assert.equal(background.extFromContentType("video/webm", "https://cdn/x", "video"), "webm");
   assert.equal(background.extFromContentType("video/quicktime", "https://cdn/x", "video"), "mov");
+  assert.equal(background.extFromContentType("audio/mpeg", "https://cdn/x", "audio"), "mp3");
+  assert.equal(background.extFromContentType("audio/mp4", "https://cdn/x", "audio"), "m4a");
+  assert.equal(background.extFromContentType("audio/ogg", "https://cdn/x", "audio"), "ogg");
   assert.equal(background.extFromContentType("", videoUrl, "video"), "mp4");
+  assert.equal(
+    background.extFromContentType("", "https://media.example.test/track.m4a", "audio"),
+    "m4a"
+  );
   assert.equal(background.extFromContentType("image/jpeg", photoUrl, "photo"), "jpg");
   assert.equal(background.normalizeMediaItem({ url: videoUrl, type: "photo" }).type, "video");
+  assert.equal(
+    background.normalizeMediaItem({ url: "https://media.example.test/listen?id=8", type: "audio" }).type,
+    "audio"
+  );
+  assert.equal(
+    background.normalizeMediaItem({ url: "https://media.example.test/track.mp3", type: "photo" }).type,
+    "audio"
+  );
   assert.notEqual(
     background.mediaKey(photoUrl, "photo"),
     background.mediaKey(videoUrl, "video"),
@@ -627,22 +763,39 @@ async function main() {
   assert.equal(downloads[1].filename, "media_example/002.webp");
   assert.equal(getFetchCalls(), 0, "direct photo download needs no cross-origin fetch");
 
+  const directAudioUrl = "https://media.example.test/track.m4a?token=audio";
+  const directAudioResult = await background.downloadOne(
+    background.normalizeMediaItem({ url: directAudioUrl, type: "audio", playing: true }),
+    "media_example",
+    3,
+    3
+  );
+  assert.equal(directAudioResult.ok, true);
+  assert.equal(downloads[2].url, directAudioUrl);
+  assert.equal(downloads[2].filename, "media_example/003.m4a");
+  assert.equal(getFetchCalls(), 0, "direct audio download needs no cross-origin fetch");
+
   const manifest = JSON.parse(fs.readFileSync(path.join(root, "manifest.json"), "utf8"));
   const popupHtml = fs.readFileSync(path.join(root, "popup.html"), "utf8");
   const popupCss = fs.readFileSync(path.join(root, "popup.css"), "utf8");
   const popupJs = fs.readFileSync(path.join(root, "popup.js"), "utf8");
+  const runtimeSource = ["background.js", "content.js", "popup.js"]
+    .map((file) => fs.readFileSync(path.join(root, file), "utf8"))
+    .join("\n");
   const iconSvg = fs.readFileSync(path.join(root, "icons/icon.svg"), "utf8");
   const readme = fs.readFileSync(path.join(root, "README.md"), "utf8");
+  const storePack = fs.readFileSync(path.join(root, "store/chrome/README.md"), "utf8");
   assert.equal(manifest.manifest_version, 3);
-  assert.equal(manifest.version, "1.5.0");
+  assert.equal(manifest.version, "1.6.0");
   assert.equal(manifest.name, "Page Media Downloader");
   assert.ok([...manifest.description].length <= 132, "manifest description must fit the store limit");
-  assert.match(manifest.description, /фото и прямые видео/);
+  assert.match(manifest.description, /фото, прямые видео и аудио/);
   assert.doesNotMatch(manifest.description, /Instagram/i);
   assert.deepEqual(manifest.permissions, ["downloads", "activeTab", "scripting", "storage"]);
   assert.equal("host_permissions" in manifest, false);
   assert.equal("content_scripts" in manifest, false);
-  assert.match(manifest.action.default_title, /Скачать фото и видео/);
+  assert.equal("optional_permissions" in manifest, false);
+  assert.match(manifest.action.default_title, /Скачать фото, видео и аудио/);
 
   assert.match(popupHtml, /<h1>Медиа со страницы<\/h1>/);
   assert.match(popupHtml, /id="status"[^>]+role="status"[^>]+aria-live="polite"/);
@@ -654,11 +807,12 @@ async function main() {
   assert.match(popupHtml, /id="btnStop" class="danger-action job-stop" hidden/);
   assert.match(popupHtml, /id="advanced" class="disclosure" hidden/);
   assert.ok(
-    popupHtml.indexOf('id="videoSection"') < popupHtml.indexOf('id="photoSection"'),
-    "video section must precede the photo section in the DOM"
+    popupHtml.indexOf('id="videoSection"') < popupHtml.indexOf('id="audioSection"') &&
+      popupHtml.indexOf('id="audioSection"') < popupHtml.indexOf('id="photoSection"'),
+    "DOM order must be video, audio, photo"
   );
   assert.equal((popupHtml.match(/class="primary-action"/g) || []).length, 1);
-  assert.doesNotMatch(popupHtml, /lazy-load|MV3|HLS|DASH|v1\.5\.0/);
+  assert.doesNotMatch(popupHtml, /lazy-load|MV3|HLS|DASH|v1\.6\.0/);
 
   assert.match(popupCss, /\[hidden\]\s*{\s*display:\s*none\s*!important/);
   assert.match(popupCss, /:focus-visible/);
@@ -670,23 +824,36 @@ async function main() {
   assert.match(popupCss, /--action:\s*oklch/);
 
   assert.match(popupJs, /`Выбрать видео \$\{position\}`/);
+  assert.match(popupJs, /`Выбрать аудио \$\{position\}`/);
   assert.match(popupJs, /`Выбрать фото \$\{position\}`/);
+  assert.match(popupJs, /badge\.textContent = "Сейчас играет"/);
   assert.match(popupJs, /type:\s*deep \? "SCROLL_LOAD_MORE" : "COLLECT_MEDIA"/);
   assert.match(popupJs, /btnStop\.hidden = !crawlRunning/);
   assert.match(popupJs, /setBusy\("crawl"\)/);
   assert.match(popupJs, /items,\s*folder,/s);
 
+  assert.doesNotMatch(runtimeSource, /\bfetch\s*\(/, "runtime must not fetch or proxy media");
+  assert.doesNotMatch(runtimeSource, /MediaRecorder|captureStream/, "runtime must not record the tab");
+  assert.doesNotMatch(runtimeSource, /chrome\.cookies|webRequest/, "runtime must not inspect cookies or traffic");
+
   assert.match(iconSvg, /<path/);
   assert.match(iconSvg, /#2563eb/i);
   assert.doesNotMatch(iconSvg, /gradient|camera/i);
   assert.match(readme, /открой конкретный пост\/Reel/i);
+  assert.match(readme, /Сейчас играет/);
+  assert.match(readme, /MP3.*M4A.*AAC.*WAV.*OGG.*FLAC.*OPUS/is);
   assert.match(readme, /Скачать выбранное · N/);
   assert.match(readme, /Найти больше.*ничего не скачивает/i);
   assert.match(readme, /Постоянного `<all_urls>`.*нет/i);
   assert.match(readme, /DRM, paywall, login bypass, YouTube/i);
 
+  const shortDescription = storePack.match(/### Short description\s+([^\n]+)/)?.[1];
+  assert.equal(shortDescription, manifest.description, "store and manifest descriptions must match");
+  assert.match(storePack, /direct audio files already exposed/i);
+  assert.match(storePack, /page-media-downloader-1\.6\.0-chrome\.zip/);
+
   console.log(
-    `PASS: ${genericCases.length} generic page cases plus Instagram, grouped results, simplified UI, accessibility, download, and permission checks`
+    `PASS: ${genericCases.length} generic page cases plus Instagram, video-audio-photo grouping, accessibility, direct downloads, and permission checks`
   );
 }
 

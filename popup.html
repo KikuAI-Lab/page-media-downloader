@@ -47,7 +47,7 @@
         <div class="results-head">
           <div>
             <h2 id="resultsTitle">Найдено</h2>
-            <p id="summaryText">0 видео · 0 фото</p>
+            <p id="summaryText">0 видео · 0 аудио · 0 фото</p>
           </div>
           <button type="button" id="btnSelectAll" class="text-button">Снять всё</button>
         </div>
@@ -58,6 +58,14 @@
             <span id="videoCount" class="count-badge">0</span>
           </div>
           <div id="videoList" class="video-list"></div>
+        </section>
+
+        <section id="audioSection" class="media-section audio-section" aria-labelledby="audioTitle" hidden>
+          <div class="section-head">
+            <h3 id="audioTitle">Аудио</h3>
+            <span id="audioCount" class="count-badge">0</span>
+          </div>
+          <div id="audioList" class="audio-list"></div>
         </section>
 
         <section id="photoSection" class="media-section" aria-labelledby="photoTitle" hidden>
@@ -93,8 +101,8 @@
       <details class="disclosure help">
         <summary>Что можно скачать</summary>
         <p>
-          Фото и обычные видео, которые страница уже открыла. Защищённые и потоковые видео расширение не обходит.
-          Для Instagram Reel лучше открыть сам пост.
+          Фото, прямое аудио и обычные видео, которые страница уже открыла. Потоковое и защищённое медиа
+          расширение не обходит. Для Instagram Reel лучше открыть сам пост.
         </p>
       </details>
     </main>
