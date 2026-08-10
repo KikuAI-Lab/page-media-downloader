@@ -1,4 +1,4 @@
-# Chrome Web Store submission pack — 1.6.0
+# Chrome Web Store submission pack — 1.6.1
 
 This is the single live owner handoff for the first public Chrome release. Update it whenever the manifest, privacy behavior, listing claims, URLs, or store questionnaire changes.
 
@@ -90,7 +90,7 @@ Use the dashboard's current wording; the conservative declarations for this buil
 - Authentication, personal communications, location, financial/payment, health, and personally identifiable information: not requested or intentionally handled.
 - Data sale or transfer: none.
 - Advertising, credit, or unrelated secondary use: none.
-- Developer collection/remote transmission: none. Selected download requests go directly from Chrome to the third-party media host, not to the developer.
+- Developer collection: none. When results render, Chrome may request discovered photo thumbnails and available video-poster previews directly from the third-party media host with a no-referrer policy. Selected download requests also go directly from Chrome to the media host. Neither preview nor download requests are routed to or received by the developer.
 
 Certify these answers only after comparing the uploaded ZIP to this exact commit. Chrome's legal/privacy certifications must be accepted by the owner, not an agent.
 
@@ -119,7 +119,7 @@ If testing Instagram, open a public post or Reel itself. Detection depends on th
 - [ ] Review `PRIVACY.md`, publisher identity, rights statement, regions, and any trader/legal status personally.
 - [ ] Make the GitHub repository public and verify Homepage, Support, and Privacy URLs while signed out.
 - [ ] Rebuild from the final public commit and match the ZIP SHA-256 to the verification receipt.
-- [ ] Upload `dist/page-media-downloader-1.6.0-chrome.zip` and the mapped image assets.
+- [ ] Upload `dist/page-media-downloader-1.6.1-chrome.zip` and the mapped image assets.
 - [ ] Copy the listing, single-purpose, permission, remote-code, and data-use answers above into the current dashboard.
 - [ ] Confirm there is no unexpected registration fee or account warning; do not pay or change provider settings automatically.
 - [ ] Save as draft and inspect the complete dashboard readback.

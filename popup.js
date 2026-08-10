@@ -204,10 +204,10 @@ function createVideoOption(item, itemIndex, position) {
   thumb.setAttribute("aria-hidden", "true");
   if (item.poster) {
     const poster = document.createElement("img");
-    poster.src = item.poster;
     poster.alt = "";
     poster.loading = "lazy";
     poster.referrerPolicy = "no-referrer";
+    poster.src = item.poster;
     poster.addEventListener("error", () => poster.remove());
     thumb.appendChild(poster);
   }
@@ -271,10 +271,10 @@ function createPhotoOption(item, itemIndex, position) {
   option.className = "media-option photo-option";
   const checkbox = createMediaCheckbox(itemIndex, `Выбрать фото ${position}`);
   const image = document.createElement("img");
-  image.src = item.url;
   image.alt = "";
   image.loading = "lazy";
   image.referrerPolicy = "no-referrer";
+  image.src = item.url;
   image.addEventListener("error", () => {
     checkbox.checked = false;
     option.classList.add("is-broken");

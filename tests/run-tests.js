@@ -157,6 +157,7 @@ function collectFromFixture({
 
   const context = {
     URL,
+    URLSearchParams,
     Map,
     Set,
     console,
@@ -223,18 +224,36 @@ function loadPopupPagePolicy() {
   return context.policy;
 }
 
-function loadBackground() {
+function loadBackground({ initialDownloadState = "complete", controlledTimers = false } = {}) {
   let messageListener = null;
   const downloads = [];
   const downloadListeners = new Set();
+  const scheduledTimeouts = new Map();
+  let downloadState = initialDownloadState;
+  let downloadError = "";
   let fetchCalls = 0;
+  let timeoutId = 0;
+
+  const scheduleTimeout = controlledTimers
+    ? (callback) => {
+        const id = ++timeoutId;
+        scheduledTimeouts.set(id, callback);
+        return id;
+      }
+    : setTimeout;
+  const cancelTimeout = controlledTimers
+    ? (id) => {
+        scheduledTimeouts.delete(id);
+      }
+    : clearTimeout;
 
   const context = {
     URL,
+    URLSearchParams,
     Blob,
     console,
-    setTimeout,
-    clearTimeout,
+    setTimeout: scheduleTimeout,
+    clearTimeout: cancelTimeout,
     setInterval,
     clearInterval,
     fetch: async () => {
@@ -263,7 +282,11 @@ function loadBackground() {
           callback(downloads.length);
         },
         search({ id }, callback) {
-          callback([{ id, state: "complete" }]);
+          callback(
+            downloadState === null
+              ? []
+              : [{ id, state: downloadState, ...(downloadError ? { error: downloadError } : {}) }]
+          );
         },
         onChanged: {
           addListener(listener) {
@@ -283,7 +306,27 @@ function loadBackground() {
     filename: "background.js",
   });
   assert.equal(typeof messageListener, "function", "background listener should register");
-  return { context, downloads, getFetchCalls: () => fetchCalls };
+  return {
+    context,
+    downloads,
+    getFetchCalls: () => fetchCalls,
+    downloadListenerCount: () => downloadListeners.size,
+    pendingTimeoutCount: () => scheduledTimeouts.size,
+    setDownloadState(state, error = "") {
+      downloadState = state;
+      downloadError = error;
+    },
+    emitDownloadChange(delta) {
+      [...downloadListeners].forEach((listener) => listener(delta));
+    },
+    async runNextTimeout() {
+      const next = scheduledTimeouts.entries().next();
+      assert.equal(next.done, false, "a controlled timeout should be scheduled");
+      const [id, callback] = next.value;
+      scheduledTimeouts.delete(id);
+      await callback();
+    },
+  };
 }
 
 async function main() {
@@ -369,6 +412,28 @@ async function main() {
         assert.equal(data.audioCount, 1);
         assert.equal(data.items[0].url, "https://example.test/media/track.m4a");
         assert.equal(data.items[0].playing, undefined);
+      },
+    },
+    {
+      name: "native WebM audio keeps explicit context",
+      fixture: {
+        url: genericPage,
+        audios: [audio({ currentSrc: "https://media.example.test/audio/track.webm" })],
+      },
+      check: (data) => {
+        assert.equal(data.audioCount, 1);
+        assert.equal(data.items[0].type, "audio");
+      },
+    },
+    {
+      name: "native MP4 audio source keeps explicit context",
+      fixture: {
+        url: genericPage,
+        audios: [audio({ sources: [source("/media/track.mp4", "audio/mp4")] })],
+      },
+      check: (data) => {
+        assert.equal(data.audioCount, 1);
+        assert.equal(data.items[0].type, "audio");
       },
     },
     {
@@ -568,6 +633,39 @@ async function main() {
       check: (data) => assert.equal(data.photoCount, 1),
     },
     {
+      name: "stable query identifiers remain distinct",
+      fixture: {
+        url: genericPage,
+        audios: [
+          audio({ currentSrc: "https://media.example.test/listen?id=track-one" }),
+          audio({ currentSrc: "https://media.example.test/listen?id=track-two" }),
+        ],
+      },
+      check: (data) => assert.equal(data.audioCount, 2),
+    },
+    {
+      name: "volatile token changes do not split a stable query item",
+      fixture: {
+        url: genericPage,
+        audios: [
+          audio({ currentSrc: "https://media.example.test/listen?id=track-one&token=short" }),
+          audio({ currentSrc: "https://media.example.test/listen?token=longer&id=track-one" }),
+        ],
+      },
+      check: (data) => assert.equal(data.audioCount, 1),
+    },
+    {
+      name: "query ordering does not change media identity",
+      fixture: {
+        url: genericPage,
+        images: [
+          image("https://cdn.example.test/photo.jpg?album=summer&id=7"),
+          image("https://cdn.example.test/photo.jpg?id=7&album=summer"),
+        ],
+      },
+      check: (data) => assert.equal(data.photoCount, 1),
+    },
+    {
       name: "same basename on different origins remains distinct",
       fixture: {
         url: genericPage,
@@ -714,19 +812,37 @@ async function main() {
   assert.equal(background.extFromContentType("audio/mpeg", "https://cdn/x", "audio"), "mp3");
   assert.equal(background.extFromContentType("audio/mp4", "https://cdn/x", "audio"), "m4a");
   assert.equal(background.extFromContentType("audio/ogg", "https://cdn/x", "audio"), "ogg");
+  assert.equal(
+    background.extFromContentType("", "https://media.example.test/track.webm", "audio"),
+    "webm"
+  );
   assert.equal(background.extFromContentType("", videoUrl, "video"), "mp4");
   assert.equal(
     background.extFromContentType("", "https://media.example.test/track.m4a", "audio"),
     "m4a"
   );
   assert.equal(background.extFromContentType("image/jpeg", photoUrl, "photo"), "jpg");
-  assert.equal(background.normalizeMediaItem({ url: videoUrl, type: "photo" }).type, "video");
+  assert.equal(background.normalizeMediaItem({ url: videoUrl, type: "photo" }).type, "photo");
   assert.equal(
     background.normalizeMediaItem({ url: "https://media.example.test/listen?id=8", type: "audio" }).type,
     "audio"
   );
   assert.equal(
-    background.normalizeMediaItem({ url: "https://media.example.test/track.mp3", type: "photo" }).type,
+    background.normalizeMediaItem("https://media.example.test/track.mp3").type,
+    "audio"
+  );
+  assert.equal(
+    background.normalizeMediaItem({
+      url: "https://media.example.test/track.webm",
+      type: "audio",
+    }).type,
+    "audio"
+  );
+  assert.equal(
+    background.normalizeMediaItem({
+      url: "https://media.example.test/track.mp4",
+      type: "audio",
+    }).type,
     "audio"
   );
   assert.notEqual(
@@ -739,6 +855,70 @@ async function main() {
     background.mediaKey("https://two.example.test/assets/photo.jpg", "photo"),
     "origin participates in generic dedup identity"
   );
+  assert.notEqual(
+    background.mediaKey("https://media.example.test/listen?id=one", "audio"),
+    background.mediaKey("https://media.example.test/listen?id=two", "audio"),
+    "stable query identifiers participate in dedup identity"
+  );
+  assert.equal(
+    background.mediaKey("https://media.example.test/listen?id=one&token=short", "audio"),
+    background.mediaKey("https://media.example.test/listen?token=longer&id=one", "audio"),
+    "volatile signing parameters do not split one media item"
+  );
+  assert.equal(
+    background.mediaKey("https://media.example.test/listen?album=a&id=one", "audio"),
+    background.mediaKey("https://media.example.test/listen?id=one&album=a", "audio"),
+    "query ordering is canonical"
+  );
+
+  const monitoredDownload = loadBackground({
+    initialDownloadState: "in_progress",
+    controlledTimers: true,
+  });
+  let monitoredSettlement = "pending";
+  const monitoredPromise = monitoredDownload.context
+    .chromeDownload("https://media.example.test/large-video.mp4", "media_test/large-video.mp4")
+    .then(
+      (id) => {
+        monitoredSettlement = "resolved";
+        return id;
+      },
+      (error) => {
+        monitoredSettlement = "rejected";
+        throw error;
+      }
+    );
+  await Promise.resolve();
+  await Promise.resolve();
+  assert.equal(monitoredDownload.pendingTimeoutCount(), 1);
+  assert.equal(monitoredDownload.downloadListenerCount(), 1);
+  await monitoredDownload.runNextTimeout();
+  await Promise.resolve();
+  assert.equal(monitoredSettlement, "pending", "in-progress downloads must not resolve early");
+  assert.equal(monitoredDownload.pendingTimeoutCount(), 1, "the watchdog should continue monitoring");
+  assert.equal(monitoredDownload.downloadListenerCount(), 1, "the completion listener stays attached");
+  monitoredDownload.emitDownloadChange({ id: 1, state: { current: "complete" } });
+  assert.equal(await monitoredPromise, 1);
+  assert.equal(monitoredDownload.downloadListenerCount(), 0);
+  assert.equal(monitoredDownload.pendingTimeoutCount(), 0);
+
+  const interruptedDownload = loadBackground({
+    initialDownloadState: "in_progress",
+    controlledTimers: true,
+  });
+  const interruptedPromise = interruptedDownload.context.chromeDownload(
+    "https://media.example.test/interrupted.mp4",
+    "media_test/interrupted.mp4"
+  );
+  await Promise.resolve();
+  await Promise.resolve();
+  await interruptedDownload.runNextTimeout();
+  const interruptionCheck = assert.rejects(interruptedPromise, /NETWORK_FAILED/);
+  interruptedDownload.setDownloadState("interrupted", "NETWORK_FAILED");
+  await interruptedDownload.runNextTimeout();
+  await interruptionCheck;
+  assert.equal(interruptedDownload.downloadListenerCount(), 0);
+  assert.equal(interruptedDownload.pendingTimeoutCount(), 0);
 
   const directResult = await background.downloadOne(
     background.normalizeMediaItem({ url: videoUrl, type: "video" }),
@@ -784,9 +964,10 @@ async function main() {
     .join("\n");
   const iconSvg = fs.readFileSync(path.join(root, "icons/icon.svg"), "utf8");
   const readme = fs.readFileSync(path.join(root, "README.md"), "utf8");
+  const privacyPolicy = fs.readFileSync(path.join(root, "PRIVACY.md"), "utf8");
   const storePack = fs.readFileSync(path.join(root, "store/chrome/README.md"), "utf8");
   assert.equal(manifest.manifest_version, 3);
-  assert.equal(manifest.version, "1.6.0");
+  assert.equal(manifest.version, "1.6.1");
   assert.equal(manifest.name, "Page Media Downloader");
   assert.ok([...manifest.description].length <= 132, "manifest description must fit the store limit");
   assert.match(manifest.description, /фото, прямые видео и аудио/);
@@ -827,6 +1008,16 @@ async function main() {
   assert.match(popupJs, /`Выбрать аудио \$\{position\}`/);
   assert.match(popupJs, /`Выбрать фото \$\{position\}`/);
   assert.match(popupJs, /badge\.textContent = "Сейчас играет"/);
+  assert.ok(
+    popupJs.indexOf('poster.referrerPolicy = "no-referrer"') <
+      popupJs.indexOf("poster.src = item.poster"),
+    "video poster referrer policy must be set before its URL"
+  );
+  assert.ok(
+    popupJs.indexOf('image.referrerPolicy = "no-referrer"') <
+      popupJs.indexOf("image.src = item.url"),
+    "photo referrer policy must be set before its URL"
+  );
   assert.match(popupJs, /type:\s*deep \? "SCROLL_LOAD_MORE" : "COLLECT_MEDIA"/);
   assert.match(popupJs, /btnStop\.hidden = !crawlRunning/);
   assert.match(popupJs, /setBusy\("crawl"\)/);
@@ -846,11 +1037,19 @@ async function main() {
   assert.match(readme, /Найти больше.*ничего не скачивает/i);
   assert.match(readme, /Постоянного `<all_urls>`.*нет/i);
   assert.match(readme, /DRM, paywall, login bypass, YouTube/i);
+  assert.match(readme, /превью.*стороннему медиа-хосту/is);
+
+  assert.match(privacyPolicy, /photo thumbnails and available video poster previews/is);
+  assert.match(privacyPolicy, /миниатюры фото и доступные постеры видео/is);
+  assert.match(privacyPolicy, /does not receive (?:these requests|them)/i);
+  assert.match(privacyPolicy, /разработчик расширения их не получает/i);
 
   const shortDescription = storePack.match(/### Short description\s+([^\n]+)/)?.[1];
   assert.equal(shortDescription, manifest.description, "store and manifest descriptions must match");
   assert.match(storePack, /direct audio files already exposed/i);
-  assert.match(storePack, /page-media-downloader-1\.6\.0-chrome\.zip/);
+  assert.match(storePack, /photo thumbnails and available video-poster previews/is);
+  assert.doesNotMatch(storePack, /Developer collection\/remote transmission: none/i);
+  assert.match(storePack, /page-media-downloader-1\.6\.1-chrome\.zip/);
 
   console.log(
     `PASS: ${genericCases.length} generic page cases plus Instagram, video-audio-photo grouping, accessibility, direct downloads, and permission checks`

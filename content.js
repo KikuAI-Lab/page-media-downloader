@@ -33,6 +33,20 @@
     /\/s(?:32|40|50|60|64|75|100|150)x(?:32|40|50|60|64|75|100|150)\//i,
     /profile_pic/i,
   ];
+  const VOLATILE_QUERY_KEYS = new Set([
+    "access_token",
+    "auth",
+    "auth_token",
+    "expire",
+    "expires",
+    "expiry",
+    "key-pair-id",
+    "keypairid",
+    "policy",
+    "sig",
+    "signature",
+    "token",
+  ]);
 
   function normalizeUrl(url) {
     if (!url || typeof url !== "string") return false;
@@ -104,14 +118,34 @@
     return null;
   }
 
-  /** Stable identity for dedup across scrolls / size variants. */
+  function stableMediaQuery(parsed) {
+    const entries = [...parsed.searchParams.entries()].filter(([key]) => {
+      const normalized = key.toLowerCase();
+      return (
+        !VOLATILE_QUERY_KEYS.has(normalized) &&
+        !normalized.startsWith("x-amz-") &&
+        !normalized.startsWith("x-goog-")
+      );
+    });
+    entries.sort(([leftKey, leftValue], [rightKey, rightValue]) => {
+      if (leftKey !== rightKey) return leftKey < rightKey ? -1 : 1;
+      if (leftValue === rightValue) return 0;
+      return leftValue < rightValue ? -1 : 1;
+    });
+    const query = new URLSearchParams();
+    entries.forEach(([key, value]) => query.append(key, value));
+    return query.toString();
+  }
+
+  /** Stable identity for dedup across scrolls / signed delivery variants. */
   function mediaKey(url, type = "photo") {
     try {
       const p = new URL(url);
       const path = p.pathname
         .replace(/\/s\d+x\d+\//g, "/")
         .replace(/\/c\d+\.\d+\.\d+\.\d+\//g, "/");
-      return `${type}:${p.origin}${path}`;
+      const query = stableMediaQuery(p);
+      return `${type}:${p.origin}${path}${query ? `?${query}` : ""}`;
     } catch {
       return `${type}:${url}`;
     }
@@ -152,8 +186,6 @@
     const n = normalizeUrl(url);
     if (!n || !isDirectMediaUrl(n)) return;
     if (type === "photo" && (isLikelyVideoUrl(n) || isLikelyAudioUrl(n))) return;
-    if (type === "video" && isLikelyAudioUrl(n)) return;
-    if (type === "audio" && isLikelyVideoUrl(n)) return;
     const key = mediaKey(n, type);
     const prev = bucket.get(key);
     const bestUrl = !prev || scoreUrl(n) > scoreUrl(prev.url) ? n : prev.url;

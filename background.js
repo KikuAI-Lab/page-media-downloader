@@ -6,7 +6,21 @@
 const MAX_RETRIES = 3;
 const CONCURRENCY = 3;
 const RETRY_DELAY_MS = 450;
-const PER_FILE_TIMEOUT_MS = 45000;
+const DOWNLOAD_WATCHDOG_MS = 45000;
+const VOLATILE_QUERY_KEYS = new Set([
+  "access_token",
+  "auth",
+  "auth_token",
+  "expire",
+  "expires",
+  "expiry",
+  "key-pair-id",
+  "keypairid",
+  "policy",
+  "sig",
+  "signature",
+  "token",
+]);
 
 /** @type {any} */
 let job = null;
@@ -42,13 +56,33 @@ function mediaTypeFromUrl(url) {
   return "photo";
 }
 
+function stableMediaQuery(parsed) {
+  const entries = [...parsed.searchParams.entries()].filter(([key]) => {
+    const normalized = key.toLowerCase();
+    return (
+      !VOLATILE_QUERY_KEYS.has(normalized) &&
+      !normalized.startsWith("x-amz-") &&
+      !normalized.startsWith("x-goog-")
+    );
+  });
+  entries.sort(([leftKey, leftValue], [rightKey, rightValue]) => {
+    if (leftKey !== rightKey) return leftKey < rightKey ? -1 : 1;
+    if (leftValue === rightValue) return 0;
+    return leftValue < rightValue ? -1 : 1;
+  });
+  const query = new URLSearchParams();
+  entries.forEach(([key, value]) => query.append(key, value));
+  return query.toString();
+}
+
 function mediaKey(url, type = mediaTypeFromUrl(url)) {
   try {
     const p = new URL(url);
     const path = p.pathname
       .replace(/\/s\d+x\d+\//g, "/")
       .replace(/\/c\d+\.\d+\.\d+\.\d+\//g, "/");
-    return `${type}:${p.origin}${path}`;
+    const query = stableMediaQuery(p);
+    return `${type}:${p.origin}${path}${query ? `?${query}` : ""}`;
   } catch {
     return `${type}:${url}`;
   }
@@ -57,9 +91,8 @@ function mediaKey(url, type = mediaTypeFromUrl(url)) {
 function normalizeMediaItem(value) {
   const raw = typeof value === "string" ? { url: value } : value;
   if (!raw || typeof raw.url !== "string" || !/^https?:\/\//i.test(raw.url)) return null;
-  const inferred = mediaTypeFromUrl(raw.url);
-  const declared = ["video", "audio", "photo"].includes(raw.type) ? raw.type : "photo";
-  const type = inferred === "video" || inferred === "audio" ? inferred : declared;
+  const declared = ["video", "audio", "photo"].includes(raw.type) ? raw.type : null;
+  const type = declared || mediaTypeFromUrl(raw.url);
   return {
     url: raw.url,
     type,
@@ -155,7 +188,7 @@ function chromeDownload(url, filename) {
 
     const cleanup = () => {
       chrome.downloads.onChanged.removeListener(onChanged);
-      if (timer) clearTimeout(timer);
+      if (timer !== null) clearTimeout(timer);
     };
 
     const finish = (fn, arg) => {
@@ -202,14 +235,20 @@ function chromeDownload(url, filename) {
         }
 
         if (settled) return;
-        timer = setTimeout(async () => {
+        const watchDownload = async () => {
           const late = await searchDownload(downloadId);
-          if (late && (late.state === "complete" || late.state === "in_progress")) {
+          if (settled) return;
+          if (late?.state === "complete") {
             finish(resolve, downloadId);
+          } else if (late?.state === "interrupted") {
+            finish(reject, new Error(late.error || "download interrupted"));
+          } else if (late?.state === "in_progress") {
+            timer = setTimeout(watchDownload, DOWNLOAD_WATCHDOG_MS);
           } else {
-            finish(reject, new Error(late?.error || "download timeout"));
+            finish(reject, new Error(late?.error || "download status unavailable"));
           }
-        }, PER_FILE_TIMEOUT_MS);
+        };
+        timer = setTimeout(watchDownload, DOWNLOAD_WATCHDOG_MS);
       }
     );
   });

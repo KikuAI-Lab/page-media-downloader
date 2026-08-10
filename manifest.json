@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Page Media Downloader",
-  "version": "1.6.0",
+  "version": "1.6.1",
   "description": "Находит фото, прямые видео и аудио на текущей странице и скачивает выбранные файлы — локально, без аккаунта и аналитики.",
   "permissions": ["downloads", "activeTab", "scripting", "storage"],
   "action": {

@@ -1,6 +1,6 @@
 # Privacy Policy — Page Media Downloader
 
-Effective date: August 10, 2026
+Effective date: August 11, 2026
 
 Page Media Downloader is a browser extension that finds photos, direct video files, and direct audio files already exposed by the web page the user is viewing and lets the user download selected files.
 
@@ -14,7 +14,7 @@ During a batch download, the extension keeps short-lived operational status in C
 
 Media discovery and selection happen locally in the user's browser. The extension has no developer-operated server, account system, analytics, advertising, or telemetry. Page and media information is not sent to the developer.
 
-When the user starts a download, Chrome connects directly to the third-party host that serves the selected media. That host and the user's browser or network provider may process the request under their own policies; the extension developer does not receive it.
+When popup results render, the browser may request discovered photo thumbnails and available video poster previews directly from the third-party media host. These preview requests use a no-referrer policy. When the user starts a download, Chrome also connects directly to the host that serves the selected media. The host and the user's browser or network provider may process these requests under their own policies; the extension developer does not receive them.
 
 ## Collection, sharing, sale, and retention
 
@@ -48,7 +48,7 @@ Material changes to this policy will be documented in this repository and reflec
 
 # Политика конфиденциальности — Page Media Downloader
 
-Дата вступления в силу: 10 августа 2026 года
+Дата вступления в силу: 11 августа 2026 года
 
 Page Media Downloader — браузерное расширение, которое находит фотографии, прямые видеофайлы и прямые аудиофайлы, уже раскрытые открытой пользователем веб-страницей, и позволяет скачать выбранные файлы.
 
@@ -62,7 +62,7 @@ Page Media Downloader — браузерное расширение, котор�
 
 Поиск и выбор медиа происходят локально в браузере пользователя. У расширения нет сервера разработчика, системы аккаунтов, аналитики, рекламы или телеметрии. Сведения о странице и медиа не отправляются разработчику.
 
-После запуска загрузки Chrome напрямую обращается к стороннему хосту, на котором находится выбранный файл. Этот хост, браузер или сетевой провайдер пользователя могут обрабатывать запрос по собственным правилам; разработчик расширения его не получает.
+При отображении результатов popup браузер может напрямую запросить у стороннего медиа-хоста миниатюры фото и доступные постеры видео. Для этих запросов действует политика `no-referrer`. После запуска загрузки Chrome также напрямую обращается к хосту, на котором находится выбранный файл. Хост, браузер или сетевой провайдер пользователя могут обрабатывать эти запросы по собственным правилам; разработчик расширения их не получает.
 
 ## Сбор, передача, продажа и хранение
 
