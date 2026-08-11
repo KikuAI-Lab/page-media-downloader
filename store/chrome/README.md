@@ -127,8 +127,8 @@ If testing Instagram, open a public post or Reel itself. Detection depends on th
 
 - [ ] Review `PRIVACY.md`, publisher identity, rights statement, regions, and any trader/legal status personally.
 - [ ] Review and personally accept the current Chrome Web Store Developer Agreement, including its distribution/license grants and unauthorized-media-download rule.
-- [ ] Make the GitHub repository public and verify Homepage, Support, Privacy, and License URLs while signed out.
-- [ ] Rebuild from the final public commit and match the ZIP SHA-256 to the verification receipt.
+- [x] Make the GitHub repository public and verify Homepage, Support, Privacy, and License URLs while signed out.
+- [x] Rebuild from the final public commit and match the ZIP SHA-256 to the verification receipt.
 - [ ] Upload `dist/page-media-downloader-1.6.1-chrome.zip` and the mapped image assets.
 - [ ] Copy the listing, single-purpose, permission, remote-code, and data-use answers above into the current dashboard.
 - [ ] Confirm there is no unexpected registration fee or account warning; do not pay or change provider settings automatically.
