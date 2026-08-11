@@ -44,16 +44,25 @@ Page Media Downloader не связан с Instagram, Meta или владель
 
 Скачивай только собственный контент или материалы, на использование которых у тебя есть разрешение. Пользователь несёт ответственность за соблюдение авторских прав, условий сайта и применимого законодательства.
 
+Расширение и его исходный код доступны по PolyForm Noncommercial License 1.0.0. Личное и другое некоммерческое использование разрешено условиями лицензии; коммерческое использование требует отдельного письменного соглашения.
+
 ## Public URLs
 
-These URLs work only after the owner switches the verified repository to public. Confirm each one in a signed-out browser before entering it in the dashboard.
+Confirm each URL in a signed-out browser before entering it in the dashboard.
 
 - Homepage: <https://github.com/KikuAI-Lab/page-media-downloader>
 - Support: <https://github.com/KikuAI-Lab/page-media-downloader/issues>
 - Privacy policy: <https://github.com/KikuAI-Lab/page-media-downloader/blob/main/PRIVACY.md>
 - Publisher website: <https://kikuai.dev>
+- Source license: <https://github.com/KikuAI-Lab/page-media-downloader/blob/main/LICENSE.md>
 
 Do not add Telegram, unrelated products, affiliate links, donations, or paid-upgrade copy to the v1 listing.
+
+## License handoff
+
+- The uploaded ZIP includes `LICENSE.md` at its root as the separate end-user license for this product.
+- [Chrome Web Store Developer Agreement](https://developer.chrome.com/docs/webstore/program-policies/terms) sections 5.1 and 5.2 separately govern the publisher's grants to Google and users. The owner must review the current agreement personally before submission; accepting it does not broaden the public repository's commercial-use permission for other parties.
+- The agreement also prohibits enabling unauthorized downloads of streaming content or media. Keep the rights warning and direct-file/access-boundary language above unchanged, and submit only if the owner confirms that the product is intended for authorized saving rather than access bypass.
 
 ## Single purpose
 
@@ -117,7 +126,8 @@ If testing Instagram, open a public post or Reel itself. Detection depends on th
 ## Owner submission checklist
 
 - [ ] Review `PRIVACY.md`, publisher identity, rights statement, regions, and any trader/legal status personally.
-- [ ] Make the GitHub repository public and verify Homepage, Support, and Privacy URLs while signed out.
+- [ ] Review and personally accept the current Chrome Web Store Developer Agreement, including its distribution/license grants and unauthorized-media-download rule.
+- [ ] Make the GitHub repository public and verify Homepage, Support, Privacy, and License URLs while signed out.
 - [ ] Rebuild from the final public commit and match the ZIP SHA-256 to the verification receipt.
 - [ ] Upload `dist/page-media-downloader-1.6.1-chrome.zip` and the mapped image assets.
 - [ ] Copy the listing, single-purpose, permission, remote-code, and data-use answers above into the current dashboard.

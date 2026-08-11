@@ -1,6 +1,7 @@
 "use strict";
 
 const assert = require("node:assert/strict");
+const crypto = require("node:crypto");
 const fs = require("node:fs");
 const path = require("node:path");
 const vm = require("node:vm");
@@ -965,6 +966,9 @@ async function main() {
   const iconSvg = fs.readFileSync(path.join(root, "icons/icon.svg"), "utf8");
   const readme = fs.readFileSync(path.join(root, "README.md"), "utf8");
   const privacyPolicy = fs.readFileSync(path.join(root, "PRIVACY.md"), "utf8");
+  const license = fs.readFileSync(path.join(root, "LICENSE.md"), "utf8");
+  const commercial = fs.readFileSync(path.join(root, "COMMERCIAL.md"), "utf8");
+  const packageScript = fs.readFileSync(path.join(root, "scripts/package-chrome.sh"), "utf8");
   const storePack = fs.readFileSync(path.join(root, "store/chrome/README.md"), "utf8");
   assert.equal(manifest.manifest_version, 3);
   assert.equal(manifest.version, "1.6.1");
@@ -1038,17 +1042,35 @@ async function main() {
   assert.match(readme, /Постоянного `<all_urls>`.*нет/i);
   assert.match(readme, /DRM, paywall, login bypass, YouTube/i);
   assert.match(readme, /превью.*стороннему медиа-хосту/is);
+  assert.match(readme, /source-available.*не является OSI open source/is);
+  assert.match(readme, /PolyForm Noncommercial License 1\.0\.0/);
+  assert.match(readme, /коммерческого использования требуется отдельное письменное соглашение/i);
 
   assert.match(privacyPolicy, /photo thumbnails and available video poster previews/is);
   assert.match(privacyPolicy, /миниатюры фото и доступные постеры видео/is);
   assert.match(privacyPolicy, /does not receive (?:these requests|them)/i);
   assert.match(privacyPolicy, /разработчик расширения их не получает/i);
 
+  assert.equal(
+    crypto.createHash("sha256").update(license).digest("hex"),
+    "c0ea4a896d2c8c394b29f9427589996db826cd501c512279ff0ed3ef48fabbe5",
+    "LICENSE.md must remain byte-identical to the official PolyForm Noncommercial 1.0.0 text"
+  );
+  assert.match(commercial, /Commercial use is not granted by this repository license/);
+  assert.match(commercial, /does not itself grant any commercial rights/);
+  assert.match(commercial, /не разрешает коммерческое использование/);
+  assert.match(packageScript, /\n\s+LICENSE\.md\n/);
+
   const shortDescription = storePack.match(/### Short description\s+([^\n]+)/)?.[1];
   assert.equal(shortDescription, manifest.description, "store and manifest descriptions must match");
   assert.match(storePack, /direct audio files already exposed/i);
   assert.match(storePack, /photo thumbnails and available video-poster previews/is);
   assert.doesNotMatch(storePack, /Developer collection\/remote transmission: none/i);
+  assert.match(storePack, /PolyForm Noncommercial License 1\.0\.0/);
+  assert.match(storePack, /коммерческое использование требует отдельного письменного соглашения/i);
+  assert.match(storePack, /Chrome Web Store Developer Agreement/);
+  assert.match(storePack, /sections 5\.1 and 5\.2/);
+  assert.match(storePack, /prohibits enabling unauthorized downloads of streaming content or media/i);
   assert.match(storePack, /page-media-downloader-1\.6\.1-chrome\.zip/);
 
   console.log(

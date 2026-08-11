@@ -17,6 +17,7 @@ trap cleanup EXIT
 
 files=(
   manifest.json
+  LICENSE.md
   background.js
   content.js
   popup.html
