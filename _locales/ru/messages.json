@@ -1,0 +1,195 @@
+{
+  "extensionName": { "message": "Page Media Downloader" },
+  "extensionDescription": { "message": "Находит фото, прямые видео и аудио на текущей странице и скачивает выбранные файлы — локально, без аккаунта и аналитики." },
+  "actionTitle": { "message": "Скачать фото, видео и аудио с этой страницы" },
+  "popupTitle": { "message": "Медиа со страницы" },
+  "currentTab": { "message": "Текущая вкладка" },
+  "repeatSearch": { "message": "Повторить поиск" },
+  "searchingMedia": { "message": "Ищу медиа…" },
+  "checkingCurrentPage": { "message": "Проверяю текущую страницу" },
+  "stopDownload": { "message": "Остановить загрузку" },
+  "foundTitle": { "message": "Найдено" },
+  "resultSummaryZero": { "message": "Видео 0 · Аудио 0 · Фото 0" },
+  "resultSummary": {
+    "message": "$VIDEOS$ видео · $AUDIOS$ аудио · $PHOTOS$ фото",
+    "placeholders": {
+      "videos": { "content": "$1", "example": "1" },
+      "audios": { "content": "$2", "example": "2" },
+      "photos": { "content": "$3", "example": "4" }
+    }
+  },
+  "selectAll": { "message": "Выбрать всё" },
+  "deselectAll": { "message": "Снять всё" },
+  "videoSection": { "message": "Видео" },
+  "audioSection": { "message": "Аудио" },
+  "photoSection": { "message": "Фото" },
+  "downloadSelectedZero": { "message": "Скачать выбранное · 0" },
+  "downloadSelected": {
+    "message": "Скачать выбранное · $COUNT$",
+    "placeholders": { "count": { "content": "$1", "example": "3" } }
+  },
+  "moreMedia": { "message": "Больше медиа со страницы" },
+  "loadMoreTitle": { "message": "Догрузить результаты" },
+  "loadMoreDetail": { "message": "Немного прокрутит страницу и обновит список. Ничего не скачивает." },
+  "findMore": { "message": "Найти больше" },
+  "downloadWholeTitle": { "message": "Скачать всю страницу" },
+  "downloadWholeDetail": { "message": "Прокрутит страницу и сразу отправит найденные файлы в Downloads без предварительного выбора." },
+  "startAutoScroll": { "message": "Запустить автоскролл" },
+  "downloadableTitle": { "message": "Что можно скачать" },
+  "downloadableHelp": { "message": "Фото, прямое аудио и обычные видео, которые страница уже открыла. Расширение не обходит потоковое и защищённое медиа. Для Instagram Reel лучше открыть сам пост." },
+  "readyToDownload": { "message": "Готово к скачиванию" },
+  "videoItem": {
+    "message": "Видео $POSITION$",
+    "placeholders": { "position": { "content": "$1", "example": "1" } }
+  },
+  "selectVideo": {
+    "message": "Выбрать видео $POSITION$",
+    "placeholders": { "position": { "content": "$1", "example": "1" } }
+  },
+  "audioItem": {
+    "message": "Аудио $POSITION$",
+    "placeholders": { "position": { "content": "$1", "example": "1" } }
+  },
+  "nowPlaying": { "message": "Сейчас играет" },
+  "selectAudio": {
+    "message": "Выбрать аудио $POSITION$",
+    "placeholders": { "position": { "content": "$1", "example": "1" } }
+  },
+  "selectPhoto": {
+    "message": "Выбрать фото $POSITION$",
+    "placeholders": { "position": { "content": "$1", "example": "1" } }
+  },
+  "scanDeepTitle": { "message": "Ищу ниже по странице…" },
+  "scanDeepDetail": { "message": "Немного прокручиваю страницу, ничего не скачиваю" },
+  "noActiveTabTitle": { "message": "Нет активной вкладки" },
+  "openPageRetryDetail": { "message": "Открой страницу и попробуй снова" },
+  "unsupportedTabTitle": { "message": "Эта вкладка не поддерживается" },
+  "openNormalPageDetail": { "message": "Открой обычную веб-страницу" },
+  "scanFailedTitle": { "message": "Не удалось проверить страницу" },
+  "refreshRetryDetail": { "message": "Обнови вкладку и повтори поиск" },
+  "scanFailedWithErrorDetail": {
+    "message": "Обнови вкладку и повтори поиск. $ERROR$",
+    "placeholders": { "error": { "content": "$1", "example": "Страница не ответила" } }
+  },
+  "mediaNotFoundTitle": { "message": "Медиа не найдено" },
+  "openInstagramPostDetail": { "message": "Открой конкретный пост или Reel и повтори поиск" },
+  "playOrLoadDetail": { "message": "Запусти медиа или догрузи страницу и попробуй снова" },
+  "videoAudioFoundTitle": { "message": "Видео и аудио найдены" },
+  "videoFoundTitle": { "message": "Видео найдено" },
+  "audioFoundTitle": { "message": "Аудио найдено" },
+  "mediaReadyTitle": { "message": "Медиа готово к выбору" },
+  "nothingSelectedTitle": { "message": "Ничего не выбрано" },
+  "selectOneDetail": { "message": "Отметь хотя бы один файл" },
+  "startingDownloadTitle": { "message": "Начинаю загрузку…" },
+  "selectedFilesDetail": {
+    "message": "Выбрано файлов: $COUNT$",
+    "placeholders": { "count": { "content": "$1", "example": "3" } }
+  },
+  "downloadStartFailedTitle": { "message": "Не удалось начать загрузку" },
+  "tryAgainDetail": { "message": "Попробуй ещё раз" },
+  "downloadStartedTitle": { "message": "Загрузка началась" },
+  "filesNotSentTitle": { "message": "Файлы не отправлены" },
+  "downloadResultBase": {
+    "message": "$STARTED$/$TOTAL$ → Downloads/$FOLDER$",
+    "placeholders": {
+      "started": { "content": "$1", "example": "3" },
+      "total": { "content": "$2", "example": "3" },
+      "folder": { "content": "$3", "example": "media_example_123456" }
+    }
+  },
+  "popupDisconnectedTitle": { "message": "Связь с popup прервалась" },
+  "downloadsContinueDetail": {
+    "message": "Уже начатые файлы продолжат загружаться. $ERROR$",
+    "placeholders": { "error": { "content": "$1", "example": "Popup закрыт" } }
+  },
+  "crawlProgressTitle": { "message": "Скачиваю всю страницу…" },
+  "crawlProgressBase": {
+    "message": "Раунд $ROUND$ · найдено $SEEN$ · отправлено $OK$",
+    "placeholders": {
+      "round": { "content": "$1", "example": "2" },
+      "seen": { "content": "$2", "example": "12" },
+      "ok": { "content": "$3", "example": "10" }
+    }
+  },
+  "downloadProgressTitle": { "message": "Скачиваю выбранное…" },
+  "downloadProgressBase": {
+    "message": "$DONE$/$TOTAL$ · успешно $OK$",
+    "placeholders": {
+      "done": { "content": "$1", "example": "2" },
+      "total": { "content": "$2", "example": "3" },
+      "ok": { "content": "$3", "example": "2" }
+    }
+  },
+  "downloadStoppedTitle": { "message": "Загрузка остановлена" },
+  "downloadedCountDetail": {
+    "message": "Скачано: $COUNT$",
+    "placeholders": { "count": { "content": "$1", "example": "8" } }
+  },
+  "foundCountSuffix": {
+    "message": " · найдено: $COUNT$",
+    "placeholders": { "count": { "content": "$1", "example": "10" } }
+  },
+  "errorCountSuffix": {
+    "message": " · ошибок: $COUNT$",
+    "placeholders": { "count": { "content": "$1", "example": "1" } }
+  },
+  "folderSuffix": {
+    "message": " · Downloads/$FOLDER$",
+    "placeholders": { "folder": { "content": "$1", "example": "media_example_123456" } }
+  },
+  "crawlStartedDetail": { "message": "Автоскролл запущен; popup можно закрыть" },
+  "crawlStartFailedTitle": { "message": "Автоскролл не запустился" },
+  "crawlContinueDetail": {
+    "message": "Автоскролл может продолжаться в фоне. $ERROR$",
+    "placeholders": { "error": { "content": "$1", "example": "Popup закрыт" } }
+  },
+  "stoppingTitle": { "message": "Останавливаю…" },
+  "currentFileCompletesDetail": { "message": "Текущий файл будет завершён" },
+  "openPopupTitle": { "message": "Открой popup расширения" },
+  "localPreviewDetail": { "message": "Локальный просмотр не подключён к активной вкладке" },
+  "openNormalPageTitle": { "message": "Открой обычную веб-страницу" },
+  "clickExtensionAgainDetail": { "message": "Затем снова нажми иконку расширения" },
+  "openCurrentFailedTitle": { "message": "Не удалось открыть текущую вкладку" },
+  "bannerCrawlRound": {
+    "message": "Media Downloader · раунд $ROUND$ · скачано $OK$ · видно $SEEN$",
+    "placeholders": {
+      "round": { "content": "$1", "example": "2" },
+      "ok": { "content": "$2", "example": "8" },
+      "seen": { "content": "$3", "example": "10" }
+    }
+  },
+  "bannerDownloadingNew": {
+    "message": "Скачиваю $NEW$ новых · всего успешно $OK$ · раунд $ROUND$",
+    "placeholders": {
+      "new": { "content": "$1", "example": "3" },
+      "ok": { "content": "$2", "example": "8" },
+      "round": { "content": "$3", "example": "2" }
+    }
+  },
+  "bannerScrolling": {
+    "message": "Скролл… раунд $ROUND$ · скачано $OK$ · уникальных $SEEN$",
+    "placeholders": {
+      "round": { "content": "$1", "example": "2" },
+      "ok": { "content": "$2", "example": "8" },
+      "seen": { "content": "$3", "example": "10" }
+    }
+  },
+  "bannerStopped": {
+    "message": "Остановлено · скачано $OK$ · папка $FOLDER$",
+    "placeholders": {
+      "ok": { "content": "$1", "example": "8" },
+      "folder": { "content": "$2", "example": "media_example_123456" }
+    }
+  },
+  "bannerDone": {
+    "message": "Готово · скачано $OK$/$SEEN$ · $FOLDER$",
+    "placeholders": {
+      "ok": { "content": "$1", "example": "8" },
+      "seen": { "content": "$2", "example": "10" },
+      "folder": { "content": "$3", "example": "media_example_123456" }
+    }
+  },
+  "missingMediaError": { "message": "Нет URL медиа" },
+  "alreadyDownloadingError": { "message": "Уже идёт скачивание. Останови его или дождись завершения." },
+  "missingTabError": { "message": "Нет активной вкладки" }
+}

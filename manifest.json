@@ -1,12 +1,13 @@
 {
   "manifest_version": 3,
-  "name": "Page Media Downloader",
-  "version": "1.6.1",
-  "description": "Находит фото, прямые видео и аудио на текущей странице и скачивает выбранные файлы — локально, без аккаунта и аналитики.",
+  "name": "__MSG_extensionName__",
+  "version": "1.6.2",
+  "description": "__MSG_extensionDescription__",
+  "default_locale": "en",
   "permissions": ["downloads", "activeTab", "scripting", "storage"],
   "action": {
     "default_popup": "popup.html",
-    "default_title": "Скачать фото, видео и аудио с этой страницы",
+    "default_title": "__MSG_actionTitle__",
     "default_icon": {
       "16": "icons/icon16.png",
       "48": "icons/icon48.png",

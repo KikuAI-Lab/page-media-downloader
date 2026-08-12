@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Медиа со страницы</title>
+    <title>Media on this page</title>
     <link rel="icon" type="image/png" href="icons/icon16.png" />
     <link rel="stylesheet" href="popup.css" />
   </head>
@@ -15,15 +15,17 @@
         </svg>
       </div>
       <div class="app-title">
-        <h1>Медиа со страницы</h1>
-        <p id="pageSource">Текущая вкладка</p>
+        <h1 data-i18n="popupTitle">Media on this page</h1>
+        <p id="pageSource" data-i18n="currentTab">Current tab</p>
       </div>
       <button
         type="button"
         id="btnScan"
         class="icon-button"
-        aria-label="Повторить поиск"
-        title="Повторить поиск"
+        aria-label="Search again"
+        title="Search again"
+        data-i18n-aria-label="repeatSearch"
+        data-i18n-title="repeatSearch"
         hidden
       >
         <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -35,26 +37,30 @@
     <section id="status" class="status is-loading" role="status" aria-live="polite" aria-atomic="true">
       <span id="statusActivity" class="status-activity" aria-hidden="true"></span>
       <span class="status-copy">
-        <strong id="statusTitle">Ищу медиа…</strong>
-        <span id="statusDetail">Проверяю текущую страницу</span>
+        <strong id="statusTitle" data-i18n="searchingMedia">Searching for media…</strong>
+        <span id="statusDetail" data-i18n="checkingCurrentPage">Checking the current page</span>
       </span>
     </section>
 
-    <button type="button" id="btnStop" class="danger-action job-stop" hidden>Остановить загрузку</button>
+    <button type="button" id="btnStop" class="danger-action job-stop" data-i18n="stopDownload" hidden>
+      Stop download
+    </button>
 
     <main>
       <section id="results" class="results" aria-labelledby="resultsTitle" hidden>
         <div class="results-head">
           <div>
-            <h2 id="resultsTitle">Найдено</h2>
-            <p id="summaryText">0 видео · 0 аудио · 0 фото</p>
+            <h2 id="resultsTitle" data-i18n="foundTitle">Found</h2>
+            <p id="summaryText" data-i18n="resultSummaryZero">0 video · 0 audio · 0 photos</p>
           </div>
-          <button type="button" id="btnSelectAll" class="text-button">Снять всё</button>
+          <button type="button" id="btnSelectAll" class="text-button" data-i18n="deselectAll">
+            Deselect all
+          </button>
         </div>
 
         <section id="videoSection" class="media-section video-section" aria-labelledby="videoTitle" hidden>
           <div class="section-head">
-            <h3 id="videoTitle">Видео</h3>
+            <h3 id="videoTitle" data-i18n="videoSection">Video</h3>
             <span id="videoCount" class="count-badge">0</span>
           </div>
           <div id="videoList" class="video-list"></div>
@@ -62,7 +68,7 @@
 
         <section id="audioSection" class="media-section audio-section" aria-labelledby="audioTitle" hidden>
           <div class="section-head">
-            <h3 id="audioTitle">Аудио</h3>
+            <h3 id="audioTitle" data-i18n="audioSection">Audio</h3>
             <span id="audioCount" class="count-badge">0</span>
           </div>
           <div id="audioList" class="audio-list"></div>
@@ -70,39 +76,45 @@
 
         <section id="photoSection" class="media-section" aria-labelledby="photoTitle" hidden>
           <div class="section-head">
-            <h3 id="photoTitle">Фото</h3>
+            <h3 id="photoTitle" data-i18n="photoSection">Photos</h3>
             <span id="photoCount" class="count-badge">0</span>
           </div>
           <div id="photoGrid" class="photo-grid"></div>
         </section>
 
         <button type="button" id="btnDownload" class="primary-action" disabled>
-          Скачать выбранное · 0
+          <span data-i18n="downloadSelectedZero">Download selected · 0</span>
         </button>
       </section>
 
       <details id="advanced" class="disclosure" hidden>
-        <summary>Больше медиа со страницы</summary>
+        <summary data-i18n="moreMedia">More media from the page</summary>
         <div class="disclosure-body">
           <section class="advanced-option">
-            <h2>Догрузить результаты</h2>
-            <p>Немного прокрутит страницу и обновит список. Ничего не скачивает.</p>
-            <button type="button" id="btnScanMore" class="secondary-action">Найти больше</button>
+            <h2 data-i18n="loadMoreTitle">Load more results</h2>
+            <p data-i18n="loadMoreDetail">Scrolls the page briefly and refreshes the list. Downloads nothing.</p>
+            <button type="button" id="btnScanMore" class="secondary-action" data-i18n="findMore">
+              Find more
+            </button>
           </section>
 
           <section class="advanced-option">
-            <h2>Скачать всю страницу</h2>
-            <p>Прокрутит страницу и сразу отправит найденные файлы в Downloads без предварительного выбора.</p>
-            <button type="button" id="btnCrawl" class="secondary-action">Запустить автоскролл</button>
+            <h2 data-i18n="downloadWholeTitle">Download the whole page</h2>
+            <p data-i18n="downloadWholeDetail">
+              Scrolls the page and sends found files directly to Downloads without prior selection.
+            </p>
+            <button type="button" id="btnCrawl" class="secondary-action" data-i18n="startAutoScroll">
+              Start auto-scroll
+            </button>
           </section>
         </div>
       </details>
 
       <details class="disclosure help">
-        <summary>Что можно скачать</summary>
-        <p>
-          Фото, прямое аудио и обычные видео, которые страница уже открыла. Потоковое и защищённое медиа
-          расширение не обходит. Для Instagram Reel лучше открыть сам пост.
+        <summary data-i18n="downloadableTitle">What can be downloaded</summary>
+        <p data-i18n="downloadableHelp">
+          Photos, direct audio, and ordinary video already opened by the page. The extension does not bypass
+          streaming or protected media. For an Instagram Reel, open the post itself.
         </p>
       </details>
     </main>

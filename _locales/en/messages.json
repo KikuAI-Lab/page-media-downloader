@@ -1,0 +1,195 @@
+{
+  "extensionName": { "message": "Page Media Downloader" },
+  "extensionDescription": { "message": "Finds photos, direct video, and audio on the current page and downloads selected files locally, without an account or analytics." },
+  "actionTitle": { "message": "Download photos, video, and audio from this page" },
+  "popupTitle": { "message": "Media on this page" },
+  "currentTab": { "message": "Current tab" },
+  "repeatSearch": { "message": "Search again" },
+  "searchingMedia": { "message": "Searching for media…" },
+  "checkingCurrentPage": { "message": "Checking the current page" },
+  "stopDownload": { "message": "Stop download" },
+  "foundTitle": { "message": "Found" },
+  "resultSummaryZero": { "message": "0 video · 0 audio · 0 photos" },
+  "resultSummary": {
+    "message": "$VIDEOS$ video · $AUDIOS$ audio · $PHOTOS$ photos",
+    "placeholders": {
+      "videos": { "content": "$1", "example": "1" },
+      "audios": { "content": "$2", "example": "2" },
+      "photos": { "content": "$3", "example": "4" }
+    }
+  },
+  "selectAll": { "message": "Select all" },
+  "deselectAll": { "message": "Deselect all" },
+  "videoSection": { "message": "Video" },
+  "audioSection": { "message": "Audio" },
+  "photoSection": { "message": "Photos" },
+  "downloadSelectedZero": { "message": "Download selected · 0" },
+  "downloadSelected": {
+    "message": "Download selected · $COUNT$",
+    "placeholders": { "count": { "content": "$1", "example": "3" } }
+  },
+  "moreMedia": { "message": "More media from the page" },
+  "loadMoreTitle": { "message": "Load more results" },
+  "loadMoreDetail": { "message": "Scrolls the page briefly and refreshes the list. Downloads nothing." },
+  "findMore": { "message": "Find more" },
+  "downloadWholeTitle": { "message": "Download the whole page" },
+  "downloadWholeDetail": { "message": "Scrolls the page and sends found files directly to Downloads without prior selection." },
+  "startAutoScroll": { "message": "Start auto-scroll" },
+  "downloadableTitle": { "message": "What can be downloaded" },
+  "downloadableHelp": { "message": "Photos, direct audio, and ordinary video already opened by the page. The extension does not bypass streaming or protected media. For an Instagram Reel, open the post itself." },
+  "readyToDownload": { "message": "Ready to download" },
+  "videoItem": {
+    "message": "Video $POSITION$",
+    "placeholders": { "position": { "content": "$1", "example": "1" } }
+  },
+  "selectVideo": {
+    "message": "Select video $POSITION$",
+    "placeholders": { "position": { "content": "$1", "example": "1" } }
+  },
+  "audioItem": {
+    "message": "Audio $POSITION$",
+    "placeholders": { "position": { "content": "$1", "example": "1" } }
+  },
+  "nowPlaying": { "message": "Now playing" },
+  "selectAudio": {
+    "message": "Select audio $POSITION$",
+    "placeholders": { "position": { "content": "$1", "example": "1" } }
+  },
+  "selectPhoto": {
+    "message": "Select photo $POSITION$",
+    "placeholders": { "position": { "content": "$1", "example": "1" } }
+  },
+  "scanDeepTitle": { "message": "Searching farther down…" },
+  "scanDeepDetail": { "message": "Scrolling briefly without downloading" },
+  "noActiveTabTitle": { "message": "No active tab" },
+  "openPageRetryDetail": { "message": "Open a page and try again" },
+  "unsupportedTabTitle": { "message": "This tab is not supported" },
+  "openNormalPageDetail": { "message": "Open a regular web page" },
+  "scanFailedTitle": { "message": "Could not check the page" },
+  "refreshRetryDetail": { "message": "Refresh the tab and search again" },
+  "scanFailedWithErrorDetail": {
+    "message": "Refresh the tab and search again. $ERROR$",
+    "placeholders": { "error": { "content": "$1", "example": "The page did not respond" } }
+  },
+  "mediaNotFoundTitle": { "message": "No media found" },
+  "openInstagramPostDetail": { "message": "Open a specific post or Reel and search again" },
+  "playOrLoadDetail": { "message": "Play the media or load more of the page, then try again" },
+  "videoAudioFoundTitle": { "message": "Video and audio found" },
+  "videoFoundTitle": { "message": "Video found" },
+  "audioFoundTitle": { "message": "Audio found" },
+  "mediaReadyTitle": { "message": "Media ready to select" },
+  "nothingSelectedTitle": { "message": "Nothing selected" },
+  "selectOneDetail": { "message": "Select at least one file" },
+  "startingDownloadTitle": { "message": "Starting download…" },
+  "selectedFilesDetail": {
+    "message": "Selected files: $COUNT$",
+    "placeholders": { "count": { "content": "$1", "example": "3" } }
+  },
+  "downloadStartFailedTitle": { "message": "Could not start the download" },
+  "tryAgainDetail": { "message": "Try again" },
+  "downloadStartedTitle": { "message": "Download started" },
+  "filesNotSentTitle": { "message": "Files were not sent" },
+  "downloadResultBase": {
+    "message": "$STARTED$/$TOTAL$ → Downloads/$FOLDER$",
+    "placeholders": {
+      "started": { "content": "$1", "example": "3" },
+      "total": { "content": "$2", "example": "3" },
+      "folder": { "content": "$3", "example": "media_example_123456" }
+    }
+  },
+  "popupDisconnectedTitle": { "message": "The popup disconnected" },
+  "downloadsContinueDetail": {
+    "message": "Downloads already started will continue. $ERROR$",
+    "placeholders": { "error": { "content": "$1", "example": "The popup closed" } }
+  },
+  "crawlProgressTitle": { "message": "Downloading the whole page…" },
+  "crawlProgressBase": {
+    "message": "Round $ROUND$ · found $SEEN$ · sent $OK$",
+    "placeholders": {
+      "round": { "content": "$1", "example": "2" },
+      "seen": { "content": "$2", "example": "12" },
+      "ok": { "content": "$3", "example": "10" }
+    }
+  },
+  "downloadProgressTitle": { "message": "Downloading selected files…" },
+  "downloadProgressBase": {
+    "message": "$DONE$/$TOTAL$ · successful $OK$",
+    "placeholders": {
+      "done": { "content": "$1", "example": "2" },
+      "total": { "content": "$2", "example": "3" },
+      "ok": { "content": "$3", "example": "2" }
+    }
+  },
+  "downloadStoppedTitle": { "message": "Download stopped" },
+  "downloadedCountDetail": {
+    "message": "Downloaded: $COUNT$",
+    "placeholders": { "count": { "content": "$1", "example": "8" } }
+  },
+  "foundCountSuffix": {
+    "message": " · found: $COUNT$",
+    "placeholders": { "count": { "content": "$1", "example": "10" } }
+  },
+  "errorCountSuffix": {
+    "message": " · errors: $COUNT$",
+    "placeholders": { "count": { "content": "$1", "example": "1" } }
+  },
+  "folderSuffix": {
+    "message": " · Downloads/$FOLDER$",
+    "placeholders": { "folder": { "content": "$1", "example": "media_example_123456" } }
+  },
+  "crawlStartedDetail": { "message": "Auto-scroll started; you can close the popup" },
+  "crawlStartFailedTitle": { "message": "Auto-scroll did not start" },
+  "crawlContinueDetail": {
+    "message": "Auto-scroll may continue in the background. $ERROR$",
+    "placeholders": { "error": { "content": "$1", "example": "The popup closed" } }
+  },
+  "stoppingTitle": { "message": "Stopping…" },
+  "currentFileCompletesDetail": { "message": "The current file will finish" },
+  "openPopupTitle": { "message": "Open the extension popup" },
+  "localPreviewDetail": { "message": "Local preview is not connected to the active tab" },
+  "openNormalPageTitle": { "message": "Open a regular web page" },
+  "clickExtensionAgainDetail": { "message": "Then click the extension icon again" },
+  "openCurrentFailedTitle": { "message": "Could not open the current tab" },
+  "bannerCrawlRound": {
+    "message": "Media Downloader · round $ROUND$ · downloaded $OK$ · visible $SEEN$",
+    "placeholders": {
+      "round": { "content": "$1", "example": "2" },
+      "ok": { "content": "$2", "example": "8" },
+      "seen": { "content": "$3", "example": "10" }
+    }
+  },
+  "bannerDownloadingNew": {
+    "message": "Downloading $NEW$ new · successful $OK$ · round $ROUND$",
+    "placeholders": {
+      "new": { "content": "$1", "example": "3" },
+      "ok": { "content": "$2", "example": "8" },
+      "round": { "content": "$3", "example": "2" }
+    }
+  },
+  "bannerScrolling": {
+    "message": "Scrolling… round $ROUND$ · downloaded $OK$ · unique $SEEN$",
+    "placeholders": {
+      "round": { "content": "$1", "example": "2" },
+      "ok": { "content": "$2", "example": "8" },
+      "seen": { "content": "$3", "example": "10" }
+    }
+  },
+  "bannerStopped": {
+    "message": "Stopped · downloaded $OK$ · folder $FOLDER$",
+    "placeholders": {
+      "ok": { "content": "$1", "example": "8" },
+      "folder": { "content": "$2", "example": "media_example_123456" }
+    }
+  },
+  "bannerDone": {
+    "message": "Done · downloaded $OK$/$SEEN$ · $FOLDER$",
+    "placeholders": {
+      "ok": { "content": "$1", "example": "8" },
+      "seen": { "content": "$2", "example": "10" },
+      "folder": { "content": "$3", "example": "media_example_123456" }
+    }
+  },
+  "missingMediaError": { "message": "No media URLs" },
+  "alreadyDownloadingError": { "message": "A download is already running. Stop it or wait for it to finish." },
+  "missingTabError": { "message": "No active tab" }
+}

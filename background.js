@@ -22,6 +22,10 @@ const VOLATILE_QUERY_KEYS = new Set([
   "token",
 ]);
 
+function message(key, substitutions = []) {
+  return chrome.i18n.getMessage(key, substitutions);
+}
+
 /** @type {any} */
 let job = null;
 
@@ -457,7 +461,7 @@ async function runCrawlJob(tabId, folder, options = {}) {
       broadcastProgress();
       await banner(
         tabId,
-        `Media Downloader · раунд ${round} · скачано ${job.ok} · видно ${seenMedia.size}`
+        message("bannerCrawlRound", [round, job.ok, seenMedia.size])
       );
 
       let data;
@@ -496,7 +500,7 @@ async function runCrawlJob(tabId, folder, options = {}) {
           broadcastProgress();
           await banner(
             tabId,
-            `Скачиваю ${toDownload.length} новых · всего ок ${job.ok} · раунд ${round}`
+            message("bannerDownloadingNew", [toDownload.length, job.ok, round])
           );
 
           const startIndex = fileIndex + 1;
@@ -526,7 +530,7 @@ async function runCrawlJob(tabId, folder, options = {}) {
       broadcastProgress();
       await banner(
         tabId,
-        `Скролл… раунд ${round} · скачано ${job.ok} · уникальных ${seenMedia.size}`
+        message("bannerScrolling", [round, job.ok, seenMedia.size])
       );
 
       let scrolled;
@@ -579,8 +583,8 @@ async function runCrawlJob(tabId, folder, options = {}) {
     await banner(
       tabId,
       job.stopRequested
-        ? `Остановлено · скачано ${job.ok} · папка ${dir}`
-        : `Готово · скачано ${job.ok}/${seenMedia.size} · ${dir}`
+        ? message("bannerStopped", [job.ok, dir])
+        : message("bannerDone", [job.ok, seenMedia.size, dir])
     );
     // hide banner after a few seconds
     setTimeout(() => banner(tabId, ""), 8000);
@@ -624,11 +628,11 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
     const { items, urls, folder } = msg;
     const media = Array.isArray(items) && items.length ? items : urls;
     if (!Array.isArray(media) || media.length === 0) {
-      sendResponse({ ok: false, error: "No media URLs" });
+      sendResponse({ ok: false, error: message("missingMediaError") });
       return false;
     }
     if (job && job.running) {
-      sendResponse({ ok: false, error: "Уже идёт скачивание. Стоп или дождись конца." });
+      sendResponse({ ok: false, error: message("alreadyDownloadingError") });
       return false;
     }
     runBatchJob(media, folder)
@@ -642,11 +646,11 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
   if (msg.type === "CRAWL_DOWNLOAD") {
     const { tabId, folder, options } = msg;
     if (!tabId) {
-      sendResponse({ ok: false, error: "No tabId" });
+      sendResponse({ ok: false, error: message("missingTabError") });
       return false;
     }
     if (job && job.running) {
-      sendResponse({ ok: false, error: "Уже идёт скачивание. Стоп или дождись конца." });
+      sendResponse({ ok: false, error: message("alreadyDownloadingError") });
       return false;
     }
     runCrawlJob(tabId, folder, options || {})

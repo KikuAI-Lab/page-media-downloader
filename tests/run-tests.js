@@ -8,6 +8,34 @@ const vm = require("node:vm");
 
 const root = path.resolve(__dirname, "..");
 
+function loadLocaleMessages(locale) {
+  return JSON.parse(
+    fs.readFileSync(path.join(root, "_locales", locale, "messages.json"), "utf8")
+  );
+}
+
+function createI18n(locale) {
+  const messages = loadLocaleMessages(locale);
+  return {
+    getUILanguage() {
+      return locale;
+    },
+    getMessage(key, substitutions = []) {
+      const entry = messages[key];
+      if (!entry) return "";
+      const values = Array.isArray(substitutions) ? substitutions : [substitutions];
+      let output = entry.message;
+      for (const [name, placeholder] of Object.entries(entry.placeholders || {})) {
+        const replacement = placeholder.content.replace(/\$(\d+)/g, (_match, index) =>
+          String(values[Number(index) - 1] ?? "")
+        );
+        output = output.replace(new RegExp(`\\$${name}\\$`, "gi"), replacement);
+      }
+      return output;
+    },
+  };
+}
+
 function attrElement(attributes = {}) {
   return {
     getAttribute(name) {
@@ -195,13 +223,13 @@ function collectFromFixture({
   return response;
 }
 
-function loadPopupModel() {
+function loadPopupModel(locale = "en") {
   const source = fs.readFileSync(path.join(root, "popup.js"), "utf8");
   const start = source.indexOf("function orderMediaItems");
   const end = source.indexOf("\nfunction setPageSource", start);
   assert.ok(start >= 0 && end > start, "popup media model should remain testable");
 
-  const context = {};
+  const context = { message: createI18n(locale).getMessage };
   vm.runInNewContext(
     `${source.slice(start, end)}\nmodel = { normaliseCollectedItems, splitMediaItems, selectionButtonLabel, resultSummaryText };`,
     context,
@@ -225,7 +253,11 @@ function loadPopupPagePolicy() {
   return context.policy;
 }
 
-function loadBackground({ initialDownloadState = "complete", controlledTimers = false } = {}) {
+function loadBackground({
+  initialDownloadState = "complete",
+  controlledTimers = false,
+  locale = "en",
+} = {}) {
   let messageListener = null;
   const downloads = [];
   const downloadListeners = new Set();
@@ -248,6 +280,7 @@ function loadBackground({ initialDownloadState = "complete", controlledTimers = 
       }
     : clearTimeout;
 
+  const i18n = createI18n(locale);
   const context = {
     URL,
     URLSearchParams,
@@ -262,6 +295,7 @@ function loadBackground({ initialDownloadState = "complete", controlledTimers = 
       throw new Error("background fetch should not run for direct downloads");
     },
     chrome: {
+      i18n,
       runtime: {
         lastError: null,
         onMessage: {
@@ -750,7 +784,7 @@ async function main() {
   assert.equal(metaCollected.videoCount, 1, "Open Graph video is a fallback");
   assert.equal(metaCollected.items[0].url, metaVideoUrl);
 
-  const popupModel = loadPopupModel();
+  const popupModel = loadPopupModel("en");
   const popupItems = popupModel.normaliseCollectedItems({
     items: [
       { url: "photo-1", type: "photo" },
@@ -787,9 +821,17 @@ async function main() {
     ["photo-1", "photo-2"],
     "photos remain in a separate group below videos"
   );
-  assert.equal(popupModel.selectionButtonLabel(0), "Скачать выбранное · 0");
-  assert.equal(popupModel.selectionButtonLabel(3), "Скачать выбранное · 3");
-  assert.equal(popupModel.resultSummaryText(popupItems), "2 видео · 2 аудио · 2 фото");
+  assert.equal(popupModel.selectionButtonLabel(0), "Download selected · 0");
+  assert.equal(popupModel.selectionButtonLabel(3), "Download selected · 3");
+  assert.equal(popupModel.resultSummaryText(popupItems), "2 video · 2 audio · 2 photos");
+
+  const russianPopupModel = loadPopupModel("ru");
+  assert.equal(russianPopupModel.selectionButtonLabel(3), "Скачать выбранное · 3");
+  assert.equal(russianPopupModel.resultSummaryText(popupItems), "2 видео · 2 аудио · 2 фото");
+
+  const ukrainianPopupModel = loadPopupModel("uk");
+  assert.equal(ukrainianPopupModel.selectionButtonLabel(3), "Завантажити вибране · 3");
+  assert.equal(ukrainianPopupModel.resultSummaryText(popupItems), "2 відео · 2 аудіо · 2 фото");
 
   const popupPolicy = loadPopupPagePolicy();
   assert.equal(popupPolicy.isSupportedPageUrl("https://example.test/page"), true);
@@ -807,6 +849,14 @@ async function main() {
   );
 
   const { context: background, downloads, getFetchCalls } = loadBackground();
+  assert.equal(
+    loadBackground({ locale: "ru" }).context.message("alreadyDownloadingError"),
+    "Уже идёт скачивание. Останови его или дождись завершения."
+  );
+  assert.equal(
+    loadBackground({ locale: "uk" }).context.message("alreadyDownloadingError"),
+    "Завантаження вже триває. Зупини його або дочекайся завершення."
+  );
   assert.equal(background.extFromContentType("video/mp4", "https://cdn/x", "video"), "mp4");
   assert.equal(background.extFromContentType("video/webm", "https://cdn/x", "video"), "webm");
   assert.equal(background.extFromContentType("video/quicktime", "https://cdn/x", "video"), "mov");
@@ -970,26 +1020,66 @@ async function main() {
   const commercial = fs.readFileSync(path.join(root, "COMMERCIAL.md"), "utf8");
   const packageScript = fs.readFileSync(path.join(root, "scripts/package-chrome.sh"), "utf8");
   const storePack = fs.readFileSync(path.join(root, "store/chrome/README.md"), "utf8");
+  const localizedScreenshots = ["en", "ru", "uk"].map((locale) =>
+    path.join(root, "store", "chrome", "assets", `screenshot-results-${locale}-1280x800.png`)
+  );
+  const localeMessages = Object.fromEntries(
+    ["en", "ru", "uk"].map((locale) => [locale, loadLocaleMessages(locale)])
+  );
+  const localeKeys = Object.keys(localeMessages.en).sort();
+  for (const [locale, messages] of Object.entries(localeMessages)) {
+    assert.deepEqual(Object.keys(messages).sort(), localeKeys, `${locale} locale keys must match English`);
+    for (const [key, entry] of Object.entries(messages)) {
+      assert.equal(typeof entry.message, "string", `${locale}.${key} must have a message`);
+      assert.ok(entry.message.trim(), `${locale}.${key} must not be empty`);
+      for (const placeholder of entry.message.matchAll(/\$([A-Za-z][A-Za-z0-9_]*)\$/g)) {
+        assert.ok(
+          entry.placeholders?.[placeholder[1].toLowerCase()],
+          `${locale}.${key} must define placeholder ${placeholder[1]}`
+        );
+      }
+    }
+    assert.ok(
+      [...messages.extensionDescription.message].length <= 132,
+      `${locale} manifest description must fit the store limit`
+    );
+  }
+
+  const referencedMessageKeys = new Set();
+  for (const match of JSON.stringify(manifest).matchAll(/__MSG_([A-Za-z0-9_]+)__/g)) {
+    referencedMessageKeys.add(match[1]);
+  }
+  for (const source of [popupJs, fs.readFileSync(path.join(root, "background.js"), "utf8")]) {
+    for (const match of source.matchAll(/\bmessage\(\s*"([A-Za-z0-9_]+)"/g)) {
+      referencedMessageKeys.add(match[1]);
+    }
+  }
+  for (const key of referencedMessageKeys) {
+    assert.ok(localeMessages.en[key], `runtime message key must exist: ${key}`);
+  }
+
   assert.equal(manifest.manifest_version, 3);
-  assert.equal(manifest.version, "1.6.1");
-  assert.equal(manifest.name, "Page Media Downloader");
-  assert.ok([...manifest.description].length <= 132, "manifest description must fit the store limit");
-  assert.match(manifest.description, /фото, прямые видео и аудио/);
-  assert.doesNotMatch(manifest.description, /Instagram/i);
+  assert.equal(manifest.version, "1.6.2");
+  assert.equal(manifest.default_locale, "en");
+  assert.equal(manifest.name, "__MSG_extensionName__");
+  assert.equal(manifest.description, "__MSG_extensionDescription__");
+  assert.equal(manifest.action.default_title, "__MSG_actionTitle__");
+  assert.equal(localeMessages.en.extensionName.message, "Page Media Downloader");
+  assert.match(localeMessages.en.extensionDescription.message, /photos, direct video, and audio/i);
+  assert.doesNotMatch(localeMessages.en.extensionDescription.message, /Instagram/i);
   assert.deepEqual(manifest.permissions, ["downloads", "activeTab", "scripting", "storage"]);
   assert.equal("host_permissions" in manifest, false);
   assert.equal("content_scripts" in manifest, false);
   assert.equal("optional_permissions" in manifest, false);
-  assert.match(manifest.action.default_title, /Скачать фото, видео и аудио/);
-
-  assert.match(popupHtml, /<h1>Медиа со страницы<\/h1>/);
+  assert.match(popupHtml, /<html lang="en">/);
+  assert.match(popupHtml, /<h1 data-i18n="popupTitle">Media on this page<\/h1>/);
   assert.match(popupHtml, /id="status"[^>]+role="status"[^>]+aria-live="polite"/);
   assert.match(popupHtml, /id="btnDownload" class="primary-action"/);
-  assert.match(popupHtml, /Скачать выбранное · 0/);
+  assert.match(popupHtml, /data-i18n="downloadSelectedZero">Download selected · 0/);
   assert.match(popupHtml, /id="btnScanMore"[^>]+class="secondary-action"/);
-  assert.match(popupHtml, /Немного прокрутит страницу и обновит список\. Ничего не скачивает\./);
-  assert.match(popupHtml, /сразу отправит найденные файлы в Downloads без предварительного выбора/);
-  assert.match(popupHtml, /id="btnStop" class="danger-action job-stop" hidden/);
+  assert.match(popupHtml, /Scrolls the page briefly and refreshes the list\. Downloads nothing\./);
+  assert.match(popupHtml, /sends found files directly to Downloads without prior selection/);
+  assert.match(popupHtml, /id="btnStop"[^>]+class="danger-action job-stop"[^>]+hidden/);
   assert.match(popupHtml, /id="advanced" class="disclosure" hidden/);
   assert.ok(
     popupHtml.indexOf('id="videoSection"') < popupHtml.indexOf('id="audioSection"') &&
@@ -998,6 +1088,9 @@ async function main() {
   );
   assert.equal((popupHtml.match(/class="primary-action"/g) || []).length, 1);
   assert.doesNotMatch(popupHtml, /lazy-load|MV3|HLS|DASH|v1\.6\.0/);
+  for (const match of popupHtml.matchAll(/data-i18n(?:-title|-aria-label)?="([^"]+)"/g)) {
+    assert.ok(localeMessages.en[match[1]], `popup HTML message key must exist: ${match[1]}`);
+  }
 
   assert.match(popupCss, /\[hidden\]\s*{\s*display:\s*none\s*!important/);
   assert.match(popupCss, /:focus-visible/);
@@ -1008,10 +1101,13 @@ async function main() {
   assert.match(popupCss, /--accent:\s*oklch/);
   assert.match(popupCss, /--action:\s*oklch/);
 
-  assert.match(popupJs, /`Выбрать видео \$\{position\}`/);
-  assert.match(popupJs, /`Выбрать аудио \$\{position\}`/);
-  assert.match(popupJs, /`Выбрать фото \$\{position\}`/);
-  assert.match(popupJs, /badge\.textContent = "Сейчас играет"/);
+  assert.match(popupJs, /message\("selectVideo", \[position\]\)/);
+  assert.match(popupJs, /message\("selectAudio", \[position\]\)/);
+  assert.match(popupJs, /message\("selectPhoto", \[position\]\)/);
+  assert.match(popupJs, /badge\.textContent = message\("nowPlaying"\)/);
+  assert.match(popupJs, /document\.documentElement\.lang/);
+  assert.doesNotMatch(popupJs, /[А-Яа-яЁёІіЇїЄє]/, "popup runtime strings must live in locale files");
+  assert.doesNotMatch(runtimeSource, /[А-Яа-яЁёІіЇїЄє]/, "runtime strings must live in locale files");
   assert.ok(
     popupJs.indexOf('poster.referrerPolicy = "no-referrer"') <
       popupJs.indexOf("poster.src = item.poster"),
@@ -1060,9 +1156,20 @@ async function main() {
   assert.match(commercial, /does not itself grant any commercial rights/);
   assert.match(commercial, /не разрешает коммерческое использование/);
   assert.match(packageScript, /\n\s+LICENSE\.md\n/);
+  assert.match(packageScript, /_locales\/en\/messages\.json/);
+  assert.match(packageScript, /_locales\/ru\/messages\.json/);
+  assert.match(packageScript, /_locales\/uk\/messages\.json/);
 
-  const shortDescription = storePack.match(/### Short description\s+([^\n]+)/)?.[1];
-  assert.equal(shortDescription, manifest.description, "store and manifest descriptions must match");
+  for (const locale of ["en", "ru", "uk"]) {
+    const shortDescription = storePack.match(
+      new RegExp(`### Short description \\(${locale}\\)\\s+([^\\n]+)`)
+    )?.[1];
+    assert.equal(
+      shortDescription,
+      localeMessages[locale].extensionDescription.message,
+      `${locale} store and manifest descriptions must match`
+    );
+  }
   assert.match(storePack, /direct audio files already exposed/i);
   assert.match(storePack, /photo thumbnails and available video-poster previews/is);
   assert.doesNotMatch(storePack, /Developer collection\/remote transmission: none/i);
@@ -1071,10 +1178,17 @@ async function main() {
   assert.match(storePack, /Chrome Web Store Developer Agreement/);
   assert.match(storePack, /sections 5\.1 and 5\.2/);
   assert.match(storePack, /prohibits enabling unauthorized downloads of streaming content or media/i);
-  assert.match(storePack, /page-media-downloader-1\.6\.1-chrome\.zip/);
+  assert.match(storePack, /page-media-downloader-1\.6\.2-chrome\.zip/);
+  for (const screenshot of localizedScreenshots) {
+    assert.ok(fs.statSync(screenshot).size > 10_000, `${path.basename(screenshot)} must be a real PNG`);
+    const png = fs.readFileSync(screenshot);
+    assert.deepEqual(Array.from(png.subarray(0, 8)), [137, 80, 78, 71, 13, 10, 26, 10]);
+    assert.equal(png.readUInt32BE(16), 1280, `${path.basename(screenshot)} width`);
+    assert.equal(png.readUInt32BE(20), 800, `${path.basename(screenshot)} height`);
+  }
 
   console.log(
-    `PASS: ${genericCases.length} generic page cases plus Instagram, video-audio-photo grouping, accessibility, direct downloads, and permission checks`
+    `PASS: ${genericCases.length} generic page cases plus three-locale i18n, Instagram, video-audio-photo grouping, accessibility, direct downloads, and permission checks`
   );
 }
 

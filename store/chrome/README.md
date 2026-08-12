@@ -1,4 +1,4 @@
-# Chrome Web Store submission pack — 1.6.1
+# Chrome Web Store update pack — 1.6.2
 
 This is the single live owner handoff for the first public Chrome release. Update it whenever the manifest, privacy behavior, listing claims, URLs, or store questionnaire changes.
 
@@ -7,23 +7,51 @@ This is the single live owner handoff for the first public Chrome release. Updat
 - Price: free
 - In-app purchases: none
 - Ads, affiliates, analytics, telemetry: none
-- Primary language: Russian
-- Initial audience: Russian-speaking desktop Chrome users; Brave remains compatible but is not a Chrome Web Store review claim
+- Default language: English
+- Additional locales: Russian (`ru`) and Ukrainian (`uk`), selected from the browser UI language
+- Audience: global desktop Chrome users; Brave remains compatible but is not a Chrome Web Store review claim
 - Category: Tools
 - Visibility at launch: Public
 - Regions: all regions permitted by the publisher account
 
 ## Listing copy
 
-### Name
+### Name (all locales)
 
 Page Media Downloader
 
-### Short description
+### Short description (en)
+
+Finds photos, direct video, and audio on the current page and downloads selected files locally, without an account or analytics.
+
+### Detailed description (en)
+
+Page Media Downloader helps save photos, direct video files, and direct audio files already available to the web page you opened.
+
+How it works:
+
+- open a regular HTTP(S) page and click the extension icon;
+- results appear in the order Video → Audio → Photos;
+- playing audio is marked “Now playing” and appears first among audio results;
+- select the photos, video, and audio you need and start the download;
+- if the page has not loaded all media yet, use the additional search;
+- on Instagram, open a specific post or Reel rather than only the profile grid.
+
+The extension works locally, without an account, developer server, analytics, advertising, or telemetry. After you invoke it, it locally processes the current page address and visible content to find media; this data is not sent to the developer or stored as browser history. It does not request permanent access to every site: temporary access to the current tab starts only after a user action.
+
+Honest limitations: the extension does not record the tab, reconstruct HLS/DASH streams, bypass DRM, paywalls, authentication, private APIs, or access controls, and it does not support YouTube. A blob: item can be downloaded only when the page also exposes a direct unencrypted URL.
+
+Page Media Downloader is not affiliated with Instagram, Meta, or the owners of supported sites; service names describe compatibility only.
+
+Download only your own content or material you have permission to use. The user is responsible for following copyright, site terms, and applicable law.
+
+The extension and its source code are available under the PolyForm Noncommercial License 1.0.0. Personal and other noncommercial use is allowed under the license; commercial use requires a separate written agreement.
+
+### Short description (ru)
 
 Находит фото, прямые видео и аудио на текущей странице и скачивает выбранные файлы — локально, без аккаунта и аналитики.
 
-### Detailed description
+### Detailed description (ru)
 
 Page Media Downloader помогает сохранить фотографии, прямые видеофайлы и прямые аудиофайлы, которые уже доступны открытой веб-странице.
 
@@ -45,6 +73,33 @@ Page Media Downloader не связан с Instagram, Meta или владель
 Скачивай только собственный контент или материалы, на использование которых у тебя есть разрешение. Пользователь несёт ответственность за соблюдение авторских прав, условий сайта и применимого законодательства.
 
 Расширение и его исходный код доступны по PolyForm Noncommercial License 1.0.0. Личное и другое некоммерческое использование разрешено условиями лицензии; коммерческое использование требует отдельного письменного соглашения.
+
+### Short description (uk)
+
+Знаходить фото, пряме відео й аудіо на поточній сторінці та локально завантажує вибрані файли — без облікового запису й аналітики.
+
+### Detailed description (uk)
+
+Page Media Downloader допомагає зберігати фотографії, прямі відеофайли та прямі аудіофайли, які вже доступні відкритій вебсторінці.
+
+Як це працює:
+
+- відкрий звичайну HTTP(S)-сторінку й натисни значок розширення;
+- результати з’являються в порядку «Відео → Аудіо → Фото»;
+- аудіо, що відтворюється, позначається «Зараз відтворюється» і показується першим серед аудіо;
+- вибери потрібні фото, відео й аудіо та запусти завантаження;
+- якщо сторінка ще не довантажила медіа, скористайся додатковим пошуком;
+- для Instagram відкрий конкретний допис або Reel, а не лише сітку профілю.
+
+Розширення працює локально, без облікового запису, сервера розробника, аналітики, реклами й телеметрії. Після натискання воно локально обробляє адресу поточної сторінки та її видимий вміст, щоб знайти медіа; ці дані не надсилаються розробнику й не зберігаються як історія браузера. Постійний доступ до всіх сайтів не запитується: тимчасовий доступ до поточної вкладки з’являється лише після дії користувача.
+
+Чесні обмеження: розширення не записує вкладку, не відновлює HLS/DASH-потоки, не обходить DRM, paywall, автентифікацію, приватні API чи обмеження доступу й не підтримує YouTube. blob: можна завантажити лише тоді, коли сама сторінка додатково розкриває прямий незашифрований URL.
+
+Page Media Downloader не пов’язаний з Instagram, Meta або власниками підтримуваних сайтів; згадка сервісу описує лише сумісність.
+
+Завантажуй лише власний контент або матеріали, на використання яких маєш дозвіл. Користувач відповідає за дотримання авторських прав, умов сайту й застосовного законодавства.
+
+Розширення та його вихідний код доступні за PolyForm Noncommercial License 1.0.0. Особисте й інше некомерційне використання дозволене умовами ліцензії; комерційне використання потребує окремої письмової угоди.
 
 ## Public URLs
 
@@ -109,9 +164,9 @@ No account, login, paid feature, or special test credential is required.
 
 1. Open a normal public HTTP(S) page containing an `img`, a native `video`, and a native `audio` or `source`, each with a direct HTTP(S) media URL.
 2. Click the extension icon. It automatically scans only the active page.
-3. Confirm that results appear as **Видео**, **Аудио**, then **Фото**, and that a playing native audio element is marked **Сейчас играет**.
-4. Deselect an item and press **Скачать выбранное · N**. Chrome should start downloads only for selected items.
-5. Expand **Больше медиа со страницы** and press **Найти больше** to verify that the page scrolls briefly and refreshes results without downloading.
+3. Confirm that results appear as **Video**, **Audio**, then **Photos**, and that a playing native audio element is marked **Now playing**. With Chrome UI set to Russian or Ukrainian, the same controls should use that locale automatically.
+4. Deselect an item and press **Download selected · N**. Chrome should start downloads only for selected items.
+5. Expand **More media from the page** and press **Find more** to verify that the page scrolls briefly and refreshes results without downloading.
 6. The separate full-page action is intentionally explicit because it scrolls and begins downloading discovered items.
 
 If testing Instagram, open a public post or Reel itself. Detection depends on the public page exposing a direct media URL; the extension does not bypass login or private access.
@@ -119,19 +174,18 @@ If testing Instagram, open a public post or Reel itself. Detection depends on th
 ## Assets
 
 - Store icon: `icons/icon128.png` — 128x128 PNG
-- Product screenshot: `store/chrome/assets/screenshot-results-1280x800.png`
+- English product screenshot: `store/chrome/assets/screenshot-results-en-1280x800.png`
+- Russian product screenshot: `store/chrome/assets/screenshot-results-ru-1280x800.png`
+- Ukrainian product screenshot: `store/chrome/assets/screenshot-results-uk-1280x800.png`
 - Small promotional tile: `store/chrome/assets/small-promo-440x280.png`
 - Marquee promotional tile: intentionally omitted for v1
 
-## Owner submission checklist
+## 1.6.2 submission checklist
 
-- [ ] Review `PRIVACY.md`, publisher identity, rights statement, regions, and any trader/legal status personally.
-- [ ] Review and personally accept the current Chrome Web Store Developer Agreement, including its distribution/license grants and unauthorized-media-download rule.
-- [x] Make the GitHub repository public and verify Homepage, Support, Privacy, and License URLs while signed out.
-- [x] Rebuild from the final public commit and match the ZIP SHA-256 to the verification receipt.
-- [ ] Upload `dist/page-media-downloader-1.6.1-chrome.zip` and the mapped image assets.
-- [ ] Copy the listing, single-purpose, permission, remote-code, and data-use answers above into the current dashboard.
-- [ ] Confirm there is no unexpected registration fee or account warning; do not pay or change provider settings automatically.
-- [ ] Save as draft and inspect the complete dashboard readback.
-- [ ] Personally accept required declarations and click the final review/publication control.
-- [ ] After approval, record the publication date as the launch-experiment trigger; evaluate aggregate evidence after 30 days and at least 100 installs.
+- [x] Leave the pending 1.6.1 first-release review untouched.
+- [ ] Wait for the current submission to become approved or rejected before changing the Store item.
+- [ ] After approval, upload `dist/page-media-downloader-1.6.2-chrome.zip` and the three localized screenshots.
+- [ ] Add English, Russian, and Ukrainian listing locales using the exact copy above.
+- [ ] Reconfirm that permissions, privacy answers, distribution, price, and reviewer instructions are unchanged except for localization.
+- [ ] Review the current Developer Agreement and required declarations personally, then submit the update.
+- [ ] Do not begin the 30-day launch experiment until the localized version is publicly available and verified signed out.

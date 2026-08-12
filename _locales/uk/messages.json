@@ -1,0 +1,195 @@
+{
+  "extensionName": { "message": "Page Media Downloader" },
+  "extensionDescription": { "message": "Знаходить фото, пряме відео й аудіо на поточній сторінці та локально завантажує вибрані файли — без облікового запису й аналітики." },
+  "actionTitle": { "message": "Завантажити фото, відео й аудіо з цієї сторінки" },
+  "popupTitle": { "message": "Медіа зі сторінки" },
+  "currentTab": { "message": "Поточна вкладка" },
+  "repeatSearch": { "message": "Повторити пошук" },
+  "searchingMedia": { "message": "Шукаю медіа…" },
+  "checkingCurrentPage": { "message": "Перевіряю поточну сторінку" },
+  "stopDownload": { "message": "Зупинити завантаження" },
+  "foundTitle": { "message": "Знайдено" },
+  "resultSummaryZero": { "message": "Відео 0 · Аудіо 0 · Фото 0" },
+  "resultSummary": {
+    "message": "$VIDEOS$ відео · $AUDIOS$ аудіо · $PHOTOS$ фото",
+    "placeholders": {
+      "videos": { "content": "$1", "example": "1" },
+      "audios": { "content": "$2", "example": "2" },
+      "photos": { "content": "$3", "example": "4" }
+    }
+  },
+  "selectAll": { "message": "Вибрати все" },
+  "deselectAll": { "message": "Зняти вибір" },
+  "videoSection": { "message": "Відео" },
+  "audioSection": { "message": "Аудіо" },
+  "photoSection": { "message": "Фото" },
+  "downloadSelectedZero": { "message": "Завантажити вибране · 0" },
+  "downloadSelected": {
+    "message": "Завантажити вибране · $COUNT$",
+    "placeholders": { "count": { "content": "$1", "example": "3" } }
+  },
+  "moreMedia": { "message": "Більше медіа зі сторінки" },
+  "loadMoreTitle": { "message": "Довантажити результати" },
+  "loadMoreDetail": { "message": "Трохи прокрутить сторінку й оновить список. Нічого не завантажує." },
+  "findMore": { "message": "Знайти більше" },
+  "downloadWholeTitle": { "message": "Завантажити всю сторінку" },
+  "downloadWholeDetail": { "message": "Прокрутить сторінку й одразу надішле знайдені файли до Downloads без попереднього вибору." },
+  "startAutoScroll": { "message": "Запустити автопрокрутку" },
+  "downloadableTitle": { "message": "Що можна завантажити" },
+  "downloadableHelp": { "message": "Фото, пряме аудіо та звичайні відео, які сторінка вже відкрила. Розширення не обходить потокове та захищене медіа. Для Instagram Reel краще відкрити сам допис." },
+  "readyToDownload": { "message": "Готово до завантаження" },
+  "videoItem": {
+    "message": "Відео $POSITION$",
+    "placeholders": { "position": { "content": "$1", "example": "1" } }
+  },
+  "selectVideo": {
+    "message": "Вибрати відео $POSITION$",
+    "placeholders": { "position": { "content": "$1", "example": "1" } }
+  },
+  "audioItem": {
+    "message": "Аудіо $POSITION$",
+    "placeholders": { "position": { "content": "$1", "example": "1" } }
+  },
+  "nowPlaying": { "message": "Зараз відтворюється" },
+  "selectAudio": {
+    "message": "Вибрати аудіо $POSITION$",
+    "placeholders": { "position": { "content": "$1", "example": "1" } }
+  },
+  "selectPhoto": {
+    "message": "Вибрати фото $POSITION$",
+    "placeholders": { "position": { "content": "$1", "example": "1" } }
+  },
+  "scanDeepTitle": { "message": "Шукаю нижче на сторінці…" },
+  "scanDeepDetail": { "message": "Трохи прокручую сторінку, нічого не завантажую" },
+  "noActiveTabTitle": { "message": "Немає активної вкладки" },
+  "openPageRetryDetail": { "message": "Відкрий сторінку й повтори спробу" },
+  "unsupportedTabTitle": { "message": "Ця вкладка не підтримується" },
+  "openNormalPageDetail": { "message": "Відкрий звичайну вебсторінку" },
+  "scanFailedTitle": { "message": "Не вдалося перевірити сторінку" },
+  "refreshRetryDetail": { "message": "Онови вкладку й повтори пошук" },
+  "scanFailedWithErrorDetail": {
+    "message": "Онови вкладку й повтори пошук. $ERROR$",
+    "placeholders": { "error": { "content": "$1", "example": "Сторінка не відповіла" } }
+  },
+  "mediaNotFoundTitle": { "message": "Медіа не знайдено" },
+  "openInstagramPostDetail": { "message": "Відкрий конкретний допис або Reel і повтори пошук" },
+  "playOrLoadDetail": { "message": "Запусти медіа або довантаж сторінку й повтори спробу" },
+  "videoAudioFoundTitle": { "message": "Відео й аудіо знайдено" },
+  "videoFoundTitle": { "message": "Відео знайдено" },
+  "audioFoundTitle": { "message": "Аудіо знайдено" },
+  "mediaReadyTitle": { "message": "Медіа готові до вибору" },
+  "nothingSelectedTitle": { "message": "Нічого не вибрано" },
+  "selectOneDetail": { "message": "Вибери принаймні один файл" },
+  "startingDownloadTitle": { "message": "Починаю завантаження…" },
+  "selectedFilesDetail": {
+    "message": "Вибрано файлів: $COUNT$",
+    "placeholders": { "count": { "content": "$1", "example": "3" } }
+  },
+  "downloadStartFailedTitle": { "message": "Не вдалося почати завантаження" },
+  "tryAgainDetail": { "message": "Спробуй ще раз" },
+  "downloadStartedTitle": { "message": "Завантаження розпочато" },
+  "filesNotSentTitle": { "message": "Файли не надіслано" },
+  "downloadResultBase": {
+    "message": "$STARTED$/$TOTAL$ → Downloads/$FOLDER$",
+    "placeholders": {
+      "started": { "content": "$1", "example": "3" },
+      "total": { "content": "$2", "example": "3" },
+      "folder": { "content": "$3", "example": "media_example_123456" }
+    }
+  },
+  "popupDisconnectedTitle": { "message": "Зв’язок зі спливним вікном перервано" },
+  "downloadsContinueDetail": {
+    "message": "Уже розпочаті файли продовжать завантажуватися. $ERROR$",
+    "placeholders": { "error": { "content": "$1", "example": "Спливне вікно закрито" } }
+  },
+  "crawlProgressTitle": { "message": "Завантажую всю сторінку…" },
+  "crawlProgressBase": {
+    "message": "Раунд $ROUND$ · знайдено $SEEN$ · надіслано $OK$",
+    "placeholders": {
+      "round": { "content": "$1", "example": "2" },
+      "seen": { "content": "$2", "example": "12" },
+      "ok": { "content": "$3", "example": "10" }
+    }
+  },
+  "downloadProgressTitle": { "message": "Завантажую вибране…" },
+  "downloadProgressBase": {
+    "message": "$DONE$/$TOTAL$ · успішно $OK$",
+    "placeholders": {
+      "done": { "content": "$1", "example": "2" },
+      "total": { "content": "$2", "example": "3" },
+      "ok": { "content": "$3", "example": "2" }
+    }
+  },
+  "downloadStoppedTitle": { "message": "Завантаження зупинено" },
+  "downloadedCountDetail": {
+    "message": "Завантажено: $COUNT$",
+    "placeholders": { "count": { "content": "$1", "example": "8" } }
+  },
+  "foundCountSuffix": {
+    "message": " · знайдено: $COUNT$",
+    "placeholders": { "count": { "content": "$1", "example": "10" } }
+  },
+  "errorCountSuffix": {
+    "message": " · помилок: $COUNT$",
+    "placeholders": { "count": { "content": "$1", "example": "1" } }
+  },
+  "folderSuffix": {
+    "message": " · Downloads/$FOLDER$",
+    "placeholders": { "folder": { "content": "$1", "example": "media_example_123456" } }
+  },
+  "crawlStartedDetail": { "message": "Автопрокрутку запущено; спливне вікно можна закрити" },
+  "crawlStartFailedTitle": { "message": "Автопрокрутку не запущено" },
+  "crawlContinueDetail": {
+    "message": "Автопрокрутка може тривати у фоні. $ERROR$",
+    "placeholders": { "error": { "content": "$1", "example": "Спливне вікно закрито" } }
+  },
+  "stoppingTitle": { "message": "Зупиняю…" },
+  "currentFileCompletesDetail": { "message": "Поточний файл буде завершено" },
+  "openPopupTitle": { "message": "Відкрий спливне вікно розширення" },
+  "localPreviewDetail": { "message": "Локальний перегляд не підключено до активної вкладки" },
+  "openNormalPageTitle": { "message": "Відкрий звичайну вебсторінку" },
+  "clickExtensionAgainDetail": { "message": "Потім знову натисни значок розширення" },
+  "openCurrentFailedTitle": { "message": "Не вдалося відкрити поточну вкладку" },
+  "bannerCrawlRound": {
+    "message": "Media Downloader · раунд $ROUND$ · завантажено $OK$ · видно $SEEN$",
+    "placeholders": {
+      "round": { "content": "$1", "example": "2" },
+      "ok": { "content": "$2", "example": "8" },
+      "seen": { "content": "$3", "example": "10" }
+    }
+  },
+  "bannerDownloadingNew": {
+    "message": "Завантажую $NEW$ нових · успішно $OK$ · раунд $ROUND$",
+    "placeholders": {
+      "new": { "content": "$1", "example": "3" },
+      "ok": { "content": "$2", "example": "8" },
+      "round": { "content": "$3", "example": "2" }
+    }
+  },
+  "bannerScrolling": {
+    "message": "Прокрутка… раунд $ROUND$ · завантажено $OK$ · унікальних $SEEN$",
+    "placeholders": {
+      "round": { "content": "$1", "example": "2" },
+      "ok": { "content": "$2", "example": "8" },
+      "seen": { "content": "$3", "example": "10" }
+    }
+  },
+  "bannerStopped": {
+    "message": "Зупинено · завантажено $OK$ · папка $FOLDER$",
+    "placeholders": {
+      "ok": { "content": "$1", "example": "8" },
+      "folder": { "content": "$2", "example": "media_example_123456" }
+    }
+  },
+  "bannerDone": {
+    "message": "Готово · завантажено $OK$/$SEEN$ · $FOLDER$",
+    "placeholders": {
+      "ok": { "content": "$1", "example": "8" },
+      "seen": { "content": "$2", "example": "10" },
+      "folder": { "content": "$3", "example": "media_example_123456" }
+    }
+  },
+  "missingMediaError": { "message": "Немає URL медіа" },
+  "alreadyDownloadingError": { "message": "Завантаження вже триває. Зупини його або дочекайся завершення." },
+  "missingTabError": { "message": "Немає активної вкладки" }
+}

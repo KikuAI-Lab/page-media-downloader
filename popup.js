@@ -1,3 +1,30 @@
+function message(key, substitutions = [], fallback = "") {
+  const value = globalThis.chrome?.i18n?.getMessage?.(key, substitutions);
+  return value || fallback;
+}
+
+function localizeDocument() {
+  const uiLocale = globalThis.chrome?.i18n?.getUILanguage?.() || "en";
+  const baseLocale = uiLocale.toLowerCase().split(/[-_]/)[0];
+  document.documentElement.lang = ["ru", "uk"].includes(baseLocale) ? baseLocale : "en";
+  document.title = message("popupTitle", [], "Media on this page");
+
+  document.querySelectorAll("[data-i18n]").forEach((element) => {
+    const value = message(element.dataset.i18n);
+    if (value) element.textContent = value;
+  });
+  document.querySelectorAll("[data-i18n-title]").forEach((element) => {
+    const value = message(element.dataset.i18nTitle);
+    if (value) element.title = value;
+  });
+  document.querySelectorAll("[data-i18n-aria-label]").forEach((element) => {
+    const value = message(element.dataset.i18nAriaLabel);
+    if (value) element.setAttribute("aria-label", value);
+  });
+}
+
+localizeDocument();
+
 const $ = (id) => document.getElementById(id);
 
 const pageSourceEl = $("pageSource");
@@ -115,16 +142,16 @@ function splitMediaItems(items) {
 }
 
 function selectionButtonLabel(count) {
-  return `Скачать выбранное · ${count}`;
+  return message("downloadSelected", [count]);
 }
 
 function resultSummaryText(items) {
   const { videos, audios, photos } = splitMediaItems(items);
-  return `${videos.length} видео · ${audios.length} аудио · ${photos.length} фото`;
+  return message("resultSummary", [videos.length, audios.length, photos.length]);
 }
 
 function setPageSource(value) {
-  pageSourceEl.textContent = String(value || "Текущая вкладка");
+  pageSourceEl.textContent = String(value || message("currentTab"));
   pageSourceEl.title = pageSourceEl.textContent;
 }
 
@@ -155,7 +182,7 @@ function updateSelectionControls() {
 
   btnDownload.textContent = selectionButtonLabel(selectedCount);
   btnDownload.disabled = busyMode !== null || selectedCount === 0;
-  btnSelectAll.textContent = allChecked ? "Снять всё" : "Выбрать всё";
+  btnSelectAll.textContent = message(allChecked ? "deselectAll" : "selectAll");
   btnSelectAll.disabled = busyMode !== null || checkboxes.length === 0;
 }
 
@@ -182,7 +209,7 @@ function itemSourceLabel(url) {
   try {
     return new URL(url).hostname.replace(/^www\./i, "");
   } catch {
-    return "Готово к скачиванию";
+    return message("readyToDownload");
   }
 }
 
@@ -218,7 +245,7 @@ function createVideoOption(item, itemIndex, position) {
   const copy = document.createElement("span");
   copy.className = "video-copy";
   const title = document.createElement("strong");
-  title.textContent = `Видео ${position}`;
+  title.textContent = message("videoItem", [position]);
   const source = document.createElement("span");
   source.textContent = itemSourceLabel(item.url);
   copy.append(title, source);
@@ -226,7 +253,7 @@ function createVideoOption(item, itemIndex, position) {
   option.append(
     thumb,
     copy,
-    createMediaCheckbox(itemIndex, `Выбрать видео ${position}`)
+    createMediaCheckbox(itemIndex, message("selectVideo", [position]))
   );
   return option;
 }
@@ -245,12 +272,12 @@ function createAudioOption(item, itemIndex, position) {
   const heading = document.createElement("span");
   heading.className = "audio-heading";
   const title = document.createElement("strong");
-  title.textContent = `Аудио ${position}`;
+  title.textContent = message("audioItem", [position]);
   heading.appendChild(title);
   if (item.playing) {
     const badge = document.createElement("span");
     badge.className = "playing-badge";
-    badge.textContent = "Сейчас играет";
+    badge.textContent = message("nowPlaying");
     heading.appendChild(badge);
   }
   const source = document.createElement("span");
@@ -261,7 +288,7 @@ function createAudioOption(item, itemIndex, position) {
   option.append(
     thumb,
     copy,
-    createMediaCheckbox(itemIndex, `Выбрать аудио ${position}`)
+    createMediaCheckbox(itemIndex, message("selectAudio", [position]))
   );
   return option;
 }
@@ -269,7 +296,7 @@ function createAudioOption(item, itemIndex, position) {
 function createPhotoOption(item, itemIndex, position) {
   const option = document.createElement("label");
   option.className = "media-option photo-option";
-  const checkbox = createMediaCheckbox(itemIndex, `Выбрать фото ${position}`);
+  const checkbox = createMediaCheckbox(itemIndex, message("selectPhoto", [position]));
   const image = document.createElement("img");
   image.alt = "";
   image.loading = "lazy";
@@ -326,8 +353,8 @@ async function scan({ deep = false } = {}) {
 
   setBusy("scan");
   setStatus(
-    deep ? "Ищу ниже по странице…" : "Ищу медиа…",
-    deep ? "Немного прокручиваю страницу, ничего не скачиваю" : "Проверяю текущую страницу",
+    message(deep ? "scanDeepTitle" : "searchingMedia"),
+    message(deep ? "scanDeepDetail" : "checkingCurrentPage"),
     "loading"
   );
 
@@ -335,13 +362,13 @@ async function scan({ deep = false } = {}) {
     const tab = await getActiveTab();
     if (!tab?.id) {
       resultsEl.hidden = true;
-      setStatus("Нет активной вкладки", "Открой страницу и попробуй снова", "error");
+      setStatus(message("noActiveTabTitle"), message("openPageRetryDetail"), "error");
       return;
     }
     if (!isSupportedPageUrl(tab.url || "")) {
       resultsEl.hidden = true;
       advancedEl.hidden = true;
-      setStatus("Эта вкладка не поддерживается", "Открой обычную веб-страницу", "error");
+      setStatus(message("unsupportedTabTitle"), message("openNormalPageDetail"), "error");
       return;
     }
 
@@ -353,7 +380,7 @@ async function scan({ deep = false } = {}) {
     });
 
     if (!response?.ok) {
-      setStatus("Не удалось проверить страницу", response?.error || "Обнови вкладку и повтори поиск", "error");
+      setStatus(message("scanFailedTitle"), response?.error || message("refreshRetryDetail"), "error");
       return;
     }
 
@@ -364,10 +391,10 @@ async function scan({ deep = false } = {}) {
 
     if (items.length === 0) {
       setStatus(
-        "Медиа не найдено",
+        message("mediaNotFoundTitle"),
         response.isInstagram
-          ? "Открой конкретный пост или Reel и повтори поиск"
-          : "Запусти видео или догрузи страницу и попробуй снова",
+          ? message("openInstagramPostDetail")
+          : message("playOrLoadDetail"),
         "error"
       );
       return;
@@ -376,19 +403,23 @@ async function scan({ deep = false } = {}) {
     const { videos, audios } = splitMediaItems(items);
     const readyTitle =
       videos.length > 0 && audios.length > 0
-        ? "Видео и аудио найдены"
+        ? message("videoAudioFoundTitle")
         : videos.length > 0
-          ? "Видео найдено"
+          ? message("videoFoundTitle")
           : audios.length > 0
-            ? "Аудио найдено"
-            : "Медиа готово к выбору";
+            ? message("audioFoundTitle")
+            : message("mediaReadyTitle");
     setStatus(
       readyTitle,
       "",
       "ok"
     );
   } catch (error) {
-    setStatus("Не удалось проверить страницу", `Обнови вкладку и повтори поиск. ${error.message || error}`, "error");
+    setStatus(
+      message("scanFailedTitle"),
+      message("scanFailedWithErrorDetail", [error.message || error]),
+      "error"
+    );
   } finally {
     if (!btnScan.hidden) advancedEl.hidden = false;
     setBusy(null);
@@ -398,12 +429,12 @@ async function scan({ deep = false } = {}) {
 async function downloadSelected() {
   const items = getSelectedItems();
   if (!items.length) {
-    setStatus("Ничего не выбрано", "Отметь хотя бы один файл", "error");
+    setStatus(message("nothingSelectedTitle"), message("selectOneDetail"), "error");
     return;
   }
 
   setBusy("download");
-  setStatus("Начинаю загрузку…", `Выбрано файлов: ${items.length}`, "loading");
+  setStatus(message("startingDownloadTitle"), message("selectedFilesDetail", [items.length]), "loading");
   const folder = buildDownloadFolder(lastData);
 
   try {
@@ -413,21 +444,21 @@ async function downloadSelected() {
       folder,
     });
     if (!result?.ok) {
-      setStatus("Не удалось начать загрузку", result?.error || "Попробуй ещё раз", "error");
+      setStatus(message("downloadStartFailedTitle"), result?.error || message("tryAgainDetail"), "error");
       return;
     }
     const started = result.started || 0;
     const failed = result.failed || 0;
     setStatus(
-      started > 0 ? "Загрузка началась" : "Файлы не отправлены",
-      `${started}/${result.total || items.length} → Downloads/${result.folder || folder}` +
-        (failed ? ` · ошибок: ${failed}` : ""),
+      message(started > 0 ? "downloadStartedTitle" : "filesNotSentTitle"),
+      message("downloadResultBase", [started, result.total || items.length, result.folder || folder]) +
+        (failed ? message("errorCountSuffix", [failed]) : ""),
       failed ? "error" : "ok"
     );
   } catch (error) {
     setStatus(
-      "Связь с popup прервалась",
-      `Уже начатые файлы продолжат загружаться. ${error.message || ""}`.trim(),
+      message("popupDisconnectedTitle"),
+      message("downloadsContinueDetail", [error.message || ""]).trim(),
       "error"
     );
   } finally {
@@ -445,16 +476,19 @@ function applyProgress(progress) {
       advancedEl.hidden = false;
       advancedEl.open = false;
       setStatus(
-        "Скачиваю всю страницу…",
-        `Раунд ${progress.round || 0} · найдено ${progress.seen || 0} · отправлено ${progress.ok || 0}` +
-          (progress.failed ? ` · ошибок: ${progress.failed}` : ""),
+        message("crawlProgressTitle"),
+        message("crawlProgressBase", [progress.round || 0, progress.seen || 0, progress.ok || 0]) +
+          (progress.failed ? message("errorCountSuffix", [progress.failed]) : ""),
         "loading"
       );
     } else {
       setStatus(
-        "Скачиваю выбранное…",
-        `${progress.done || 0}/${progress.total || 0} · успешно ${progress.ok || 0}` +
-          (progress.failed ? ` · ошибок: ${progress.failed}` : ""),
+        message("downloadProgressTitle"),
+        message("downloadProgressBase", [
+          progress.done || 0,
+          progress.total || 0,
+          progress.ok || 0,
+        ]) + (progress.failed ? message("errorCountSuffix", [progress.failed]) : ""),
         "loading"
       );
     }
@@ -466,11 +500,11 @@ function applyProgress(progress) {
     const stopped = progress.phase === "stopped" || progress.stopRequested;
     const failed = progress.failed || 0;
     setStatus(
-      stopped ? "Загрузка остановлена" : progress.ok ? "Загрузка началась" : "Файлы не отправлены",
-      `${progress.ok || 0} файлов` +
-        (progress.seen ? ` · найдено ${progress.seen}` : "") +
-        (failed ? ` · ошибок: ${failed}` : "") +
-        (progress.folder ? ` · Downloads/${progress.folder}` : ""),
+      message(stopped ? "downloadStoppedTitle" : progress.ok ? "downloadStartedTitle" : "filesNotSentTitle"),
+      message("downloadedCountDetail", [progress.ok || 0]) +
+        (progress.seen ? message("foundCountSuffix", [progress.seen]) : "") +
+        (failed ? message("errorCountSuffix", [failed]) : "") +
+        (progress.folder ? message("folderSuffix", [progress.folder]) : ""),
       failed ? "error" : stopped ? "neutral" : "ok"
     );
   }
@@ -480,17 +514,17 @@ async function crawlAll() {
   if (busyMode !== null) return;
   const tab = await getActiveTab();
   if (!tab?.id) {
-    setStatus("Нет активной вкладки", "Открой страницу и попробуй снова", "error");
+    setStatus(message("noActiveTabTitle"), message("openPageRetryDetail"), "error");
     return;
   }
   if (!isSupportedPageUrl(tab.url || "")) {
-    setStatus("Эта вкладка не поддерживается", "Открой обычную веб-страницу", "error");
+    setStatus(message("unsupportedTabTitle"), message("openNormalPageDetail"), "error");
     return;
   }
 
   setBusy("crawl");
   advancedEl.open = false;
-  setStatus("Скачиваю всю страницу…", "Автоскролл запущен; popup можно закрыть", "loading");
+  setStatus(message("crawlProgressTitle"), message("crawlStartedDetail"), "loading");
   const folder = buildDownloadFolder(
     lastData || {
       pageUrl: tab.url,
@@ -514,22 +548,22 @@ async function crawlAll() {
     });
 
     if (!result?.ok) {
-      setStatus("Автоскролл не запустился", result?.error || "Попробуй ещё раз", "error");
+      setStatus(message("crawlStartFailedTitle"), result?.error || message("tryAgainDetail"), "error");
       return;
     }
 
     setStatus(
-      result.stopped ? "Загрузка остановлена" : "Загрузка началась",
-      `${result.started || 0} файлов` +
-        (result.seen ? ` · найдено ${result.seen}` : "") +
-        (result.failed ? ` · ошибок: ${result.failed}` : "") +
-        ` · Downloads/${result.folder || folder}`,
+      message(result.stopped ? "downloadStoppedTitle" : "downloadStartedTitle"),
+      message("downloadedCountDetail", [result.started || 0]) +
+        (result.seen ? message("foundCountSuffix", [result.seen]) : "") +
+        (result.failed ? message("errorCountSuffix", [result.failed]) : "") +
+        message("folderSuffix", [result.folder || folder]),
       result.failed ? "error" : result.stopped ? "neutral" : "ok"
     );
   } catch (error) {
     setStatus(
-      "Связь с popup прервалась",
-      `Автоскролл может продолжаться в фоне. ${error.message || ""}`.trim(),
+      message("popupDisconnectedTitle"),
+      message("crawlContinueDetail", [error.message || ""]).trim(),
       "error"
     );
   } finally {
@@ -545,7 +579,7 @@ async function crawlAll() {
 async function stopJob() {
   btnStop.disabled = true;
   await chrome.runtime.sendMessage({ type: "STOP_DOWNLOAD" });
-  setStatus("Останавливаю…", "Текущий файл будет завершён", "loading");
+  setStatus(message("stoppingTitle"), message("currentFileCompletesDetail"), "loading");
 }
 
 btnSelectAll.addEventListener("click", () => {
@@ -575,7 +609,11 @@ if (globalThis.chrome?.runtime?.onMessage) {
 
 async function initialise() {
   if (!globalThis.chrome?.tabs?.query || !globalThis.chrome?.runtime?.sendMessage) {
-    setStatus("Открой popup расширения", "Локальный просмотр не подключён к активной вкладке", "neutral");
+    setStatus(
+      message("openPopupTitle", [], "Open the extension popup"),
+      message("localPreviewDetail", [], "Local preview is not connected to the active tab"),
+      "neutral"
+    );
     return;
   }
 
@@ -584,7 +622,7 @@ async function initialise() {
     if (!tab || !isSupportedPageUrl(tab.url || "")) {
       resultsEl.hidden = true;
       advancedEl.hidden = true;
-      setStatus("Открой обычную веб-страницу", "Затем снова нажми иконку расширения", "error");
+      setStatus(message("openNormalPageTitle"), message("clickExtensionAgainDetail"), "error");
       return;
     }
 
@@ -596,7 +634,7 @@ async function initialise() {
     }
     await scan();
   } catch (error) {
-    setStatus("Не удалось открыть текущую вкладку", error.message || "Попробуй ещё раз", "error");
+    setStatus(message("openCurrentFailedTitle"), error.message || message("tryAgainDetail"), "error");
   }
 }
 

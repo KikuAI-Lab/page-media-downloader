@@ -23,12 +23,15 @@ files=(
   popup.html
   popup.js
   popup.css
+  _locales/en/messages.json
+  _locales/ru/messages.json
+  _locales/uk/messages.json
   icons/icon16.png
   icons/icon48.png
   icons/icon128.png
 )
 
-mkdir -p "$stage_dir/icons" "$project_dir/dist"
+mkdir -p "$stage_dir" "$project_dir/dist"
 
 for relative_path in "${files[@]}"; do
   source_path="$project_dir/$relative_path"
@@ -37,6 +40,7 @@ for relative_path in "${files[@]}"; do
     echo "Missing required runtime file: $relative_path" >&2
     exit 1
   fi
+  mkdir -p "$(dirname -- "$target_path")"
   cp -- "$source_path" "$target_path"
   chmod 0644 "$target_path"
   touch -t 202001010000.00 "$target_path"
