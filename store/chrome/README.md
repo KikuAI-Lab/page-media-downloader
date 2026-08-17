@@ -1,6 +1,6 @@
-# Chrome Web Store update pack — 1.6.2
+# Chrome Web Store public release record — 1.6.2
 
-This is the single live owner handoff for the first public Chrome release. Update it whenever the manifest, privacy behavior, listing claims, URLs, or store questionnaire changes.
+This is the single live owner record for the public Chrome release. Update it whenever the manifest, privacy behavior, listing claims, URLs, or store questionnaire changes.
 
 ## Release position
 
@@ -180,12 +180,23 @@ If testing Instagram, open a public post or Reel itself. Detection depends on th
 - Small promotional tile: `store/chrome/assets/small-promo-440x280.png`
 - Marquee promotional tile: intentionally omitted for v1
 
-## 1.6.2 submission checklist
+## 1.6.2 publication receipt
 
 - [x] Leave the pending 1.6.1 first-release review untouched.
-- [ ] Wait for the current submission to become approved or rejected before changing the Store item.
-- [ ] After approval, upload `dist/page-media-downloader-1.6.2-chrome.zip` and the three localized screenshots.
-- [ ] Add English, Russian, and Ukrainian listing locales using the exact copy above.
-- [ ] Reconfirm that permissions, privacy answers, distribution, price, and reviewer instructions are unchanged except for localization.
-- [ ] Review the current Developer Agreement and required declarations personally, then submit the update.
-- [ ] Do not begin the 30-day launch experiment until the localized version is publicly available and verified signed out.
+- [x] Wait for the first submission to resolve before changing the Store item.
+- [x] Upload `dist/page-media-downloader-1.6.2-chrome.zip` and the localized Store materials.
+- [x] Add English, Russian, and Ukrainian listing locales using the copy above.
+- [x] Keep permissions, privacy answers, distribution, price, and reviewer instructions unchanged except for localization.
+- [x] Owner reviewed the required declarations and submitted the update.
+- [x] Public Google update endpoint verified version `1.6.2` on August 17, 2026.
+- [x] Public CRX runtime files match the local 1.6.2 package byte-for-byte. Google adds only `update_url` to `manifest.json` plus its `_metadata/verified_contents.json` receipt.
+
+Public listing: <https://chromewebstore.google.com/detail/page-media-downloader/gipfohoiellkikkpbhhafjodamlfikod>
+
+Public CRX SHA-256 verified on August 17, 2026: `c01acc4e5b5b52fa4832de6da4bb3db6c84608e06c6a3b6c41943141ec237ef1`.
+
+The 30-day launch experiment starts from the public 1.6.2 release observed on August 15, 2026. Interpret results only after both 30 days and at least 100 installs.
+
+## Featured nomination boundary
+
+Do not submit the Featured-badge nomination for this release. Chrome Web Store's current Featured Products policy lists video downloaders among product types that may be restricted from featuring, and this extension explicitly includes direct-video downloading. Recheck the current policy before reconsidering; do not add a marquee asset or certify the nomination form merely to satisfy the checklist.
