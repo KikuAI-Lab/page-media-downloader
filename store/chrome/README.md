@@ -200,3 +200,18 @@ The 30-day launch experiment starts from the public 1.6.2 release observed on Au
 ## Featured nomination boundary
 
 Do not submit the Featured-badge nomination for this release. Chrome Web Store's current Featured Products policy lists video downloaders among product types that may be restricted from featuring, and this extension explicitly includes direct-video downloading. Recheck the current policy before reconsidering; do not add a marquee asset or certify the nomination form merely to satisfy the checklist.
+
+## Limited public launch receipt — August 17, 2026
+
+- LinkedIn announcement: <https://www.linkedin.com/feed/update/urn:li:share:7495146528509186049/>
+- Live product landing page: <https://kikuai.dev/tools/page-media-downloader/>
+- Landing-page source commit: `6769d16d9f6e5eeeed128258933877561ab67186`
+- Cloudflare production deployment: `e7ef00e8-7073-4397-9977-1897ed9bb96a`
+- Live 1280x800 screenshot SHA-256: `a0f8729868131bd629e96abc7f853d70b2d3ce4e7ef190d98c3e7cd88f5258f0`
+- Canonical launch Issue and full verification receipt: <https://github.com/KikuAI-Lab/page-media-downloader/issues/1#issuecomment-5317480686>
+
+The LinkedIn post was read back after publication and contains the final text, product screenshot, descriptive alt text, and a LinkedIn short link that resolves to the KikuAI landing page. The live landing page was verified in Brave and exposes the same screenshot in the page, `og:image`, and `twitter:image`.
+
+Product Hunt and Hacker News were left unsubmitted because the available Brave session requires an authenticated and eligible owner account. Reddit remains a manual, single-community follow-up because the session requires owner login and automated community posting was intentionally avoided. DOU was skipped because its article rules prohibit AI-generated article text.
+
+The public 1.6.2 observation on August 15 remains the experiment trigger; the August 17 announcement does not reset it. The first 30-day checkpoint is September 14, 2026, and results still require at least 100 installs before interpretation. Monetization remains gated on at least three independent explicit requests for the same paid feature.
